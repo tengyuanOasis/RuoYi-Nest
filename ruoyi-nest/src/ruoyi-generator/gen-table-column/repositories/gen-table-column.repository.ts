@@ -215,11 +215,10 @@ export class GenTableColumnRepository {
 
     async deleteGenTableColumnByIds(tableIds: number[]): Promise<number> {
         const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.columnRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder('c')
+        const queryBuilder = entityManager.createQueryBuilder()
             .delete()
             .from(GenTableColumn)
-            .where('c.tableId IN (:tableIds)')
-            .setParameter('tableIds', tableIds);
+            .where('tableId IN (:tableIds)',{tableIds})
 
         this.sqlLoggerUtils.log(queryBuilder, 'deleteGenTableColumnByIds');
 
