@@ -12,6 +12,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
                     host: configService.get('nest.redis.host'),
                     port: configService.get('nest.redis.port'),
                     password: configService.get('nest.redis.password'),
+                    database: configService.get('nest.redis.database'),
                 },
             }),
             inject: [ConfigService],
