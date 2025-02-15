@@ -19,10 +19,8 @@ export class TableDataInfo<T = any> {
     constructor(list?: T[], total?: number) {
         this.code = 200; // HttpStatus.SUCCESS
         this.msg = "查询成功";
-        if (list && total) {
-            this.rows = this.sortObject(list);
-            this.total = total;
-        }
+        this.rows = list ? this.sortObject(list) : [];
+        this.total = total || 0;
     }
 
     private sortObject(obj: any): any {
