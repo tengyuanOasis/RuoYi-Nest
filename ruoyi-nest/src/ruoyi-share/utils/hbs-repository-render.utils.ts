@@ -4,7 +4,8 @@ import { StringUtils } from "./string.utils"
 export class HbsRepositoryRenderUtils {
 
     public static renderHeader(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         const alias = ClassNameWithoutSysPrefixAndLowerCaseFirstLetter.charAt(0)
         const tableNameWithMiddleLine = context.tableName.replace(/_/g, '-')
@@ -28,7 +29,8 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
     }
 
     public static renderConstructor(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         const alias = ClassNameWithoutSysPrefixAndLowerCaseFirstLetter.charAt(0)
         return `
@@ -41,8 +43,9 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
         `
     }
 
-    public static renderSelectVo(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        public static renderSelectVo(context) {
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         const alias = ClassNameWithoutSysPrefixAndLowerCaseFirstLetter.charAt(0)
         const indent = ' '.repeat(16);  // 16个空格的缩进     
@@ -64,7 +67,8 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
     }
 
     public static renderSelectById(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         const alias = ClassNameWithoutSysPrefixAndLowerCaseFirstLetter.charAt(0)
         return `
@@ -82,7 +86,8 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
     }
 
     public static renderSelectList(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         const alias = ClassNameWithoutSysPrefixAndLowerCaseFirstLetter.charAt(0)
         return `
@@ -114,7 +119,8 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
     }
 
     public static renderInsert(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         return `
     /**
@@ -151,7 +157,8 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
     }
 
     public static renderUpdate(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         return `
     /**
@@ -188,7 +195,8 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
     }
 
     public static renderDeleteByIds(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         const alias = ClassNameWithoutSysPrefixAndLowerCaseFirstLetter.charAt(0)
         return `

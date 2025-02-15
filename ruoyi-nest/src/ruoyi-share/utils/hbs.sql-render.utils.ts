@@ -5,8 +5,9 @@ import { StringUtils } from "./string.utils"
 export class HbsSqlRenderUtils { 
 
     public static renderSql(context) {
+        const tableNamePrefix = context.tableName.split('_')[0]
         // 举例 SysConfig => Config
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         // 举例 SysConfig => config
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         // 举例 config => c

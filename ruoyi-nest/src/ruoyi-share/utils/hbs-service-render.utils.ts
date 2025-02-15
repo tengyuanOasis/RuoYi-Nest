@@ -4,7 +4,8 @@ import { StringUtils } from "./string.utils"
 export class HbsServiceRenderUtils { 
 
     public static renderHeader(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         const alias = ClassNameWithoutSysPrefixAndLowerCaseFirstLetter.charAt(0)
         const tableNameWithMiddleLine = context.tableName.replace(/_/g, '-')
@@ -24,7 +25,8 @@ import { ${context.ClassName} } from '~/${context.packageName}/${tableNameWithMi
         `
     }
     public static renderClass(context) {
-        const ClassNameWithoutSysPrefix = context.ClassName.replace(/^sys/i, '')
+        const tableNamePrefix = context.tableName.split('_')[0]
+        const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         const alias = ClassNameWithoutSysPrefixAndLowerCaseFirstLetter.charAt(0)
         const tableNameWithMiddleLine = context.tableName.replace(/_/g, '-')
