@@ -37,7 +37,15 @@ export class HbsUtils {
         hbs.registerHelper('hbs_eq', function(a, b){
             return a === b;
         });
-
+        hbs.registerHelper('hbs_or', function(a, b){
+            return a || b;
+        });
+        hbs.registerHelper('hbs_and', function(a, b){
+            return a && b;
+        });
+        hbs.registerHelper('hbs_not', function(a){
+            return !a;
+        });
         // 渲染Repository头部
         hbs.registerHelper('hbs_render_repository_header', function(){
             return HbsRepositoryRenderUtils.renderHeader(this)

@@ -13,6 +13,41 @@
         />
       </el-form-item>
       {{/if}}
+      {{#if (hbs_and (hbs_or (hbs_eq htmlType "select") (hbs_eq htmlType "radio")) dictType)}}
+      <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+        <el-select v-model="queryParams.{{tsField}}" placeholder="请选择{{columnComment}}" clearable>
+          <el-option
+            v-for="dict in dict.type.{{dictType}}"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      {{/if}}
+      {{#if (hbs_and (hbs_eq htmlType "datetime") (hbs_not (hbs_eq queryType "BETWEEN")))}}
+      <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+        <el-date-picker clearable
+          v-model="queryParams.{{tsField}}"
+          type="date"
+          value-format="yyyy-MM-dd"
+          placeholder="请选择{{columnComment}}">
+        </el-date-picker>
+      </el-form-item>
+      {{/if}}
+      {{#if (hbs_and (hbs_eq htmlType "datetime") (hbs_eq queryType "BETWEEN"))}}
+      <el-form-item label="{{columnComment}}">
+        <el-date-picker
+          v-model="daterange{{AttrName}}"
+          style="width: 240px"
+          value-format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        ></el-date-picker>
+      </el-form-item>
+      {{/if}}
       {{/if}}
       {{/each}}
       <el-form-item>
@@ -113,9 +148,100 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         {{#each columns}}
         {{#if isEdit}}
+        {{#if (hbs_eq htmlType "input")}}
         <el-form-item label="{{columnComment}}" prop="{{tsField}}">
           <el-input v-model="form.{{tsField}}" placeholder="请输入{{columnComment}}" />
         </el-form-item>
+        {{else if (hbs_eq htmlType "imageUpload")}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <image-upload v-model="form.{{tsField}}"/>
+        </el-form-item>
+        {{else if (hbs_eq htmlType "fileUpload")}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <file-upload v-model="form.{{tsField}}"/>
+        </el-form-item>
+        {{else if (hbs_eq htmlType "editor")}}
+        <el-form-item label="{{columnComment}}">
+          <editor v-model="form.{{tsField}}" :min-height="192"/>
+        </el-form-item>
+        {{else if (hbs_eq htmlType "select")}}
+        {{#if dictType}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <el-select v-model="form.{{tsField}}" placeholder="请选择{{columnComment}}">
+            <el-option
+              v-for="dict in dict.type.{{dictType}}"
+              :key="dict.value"
+              :label="dict.label"
+              {{#if (hbs_or (hbs_eq javaType "Integer") (hbs_eq javaType "Long"))}} 
+              :value="parseInt(dict.value)"
+              {{else}}
+              :value="dict.value"
+              {{/if}}
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        {{else}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <el-select v-model="form.{{tsField}}" placeholder="请选择{{columnComment}}">
+            <el-option label="请选择字典生成" value="" />
+          </el-select>
+        </el-form-item>
+        {{/if}}
+        {{else if (hbs_eq htmlType "checkbox")}}
+        {{#if dictType}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <el-checkbox-group v-model="form.{{tsField}}">
+            <el-checkbox
+              v-for="dict in dict.type.{{dictType}}"
+              :key="dict.value"
+              :label="dict.value">
+              {{dict.label}}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        {{else}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <el-checkbox-group v-model="form.{{tsField}}">
+            <el-checkbox>请选择字典生成</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        {{/if}}
+        {{else if (hbs_eq htmlType "radio")}}
+        {{#if dictType}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <el-radio-group v-model="form.{{tsField}}">
+            <el-radio
+              v-for="dict in dict.type.{{dictType}}"
+              :key="dict.value"
+              {{#if (hbs_or (hbs_eq javaType "Integer") (hbs_eq javaType "Long"))}}
+              :label="parseInt(dict.value)"
+              {{else}}
+              :label="dict.value"
+              {{/if}}
+            >{{dict.label}}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        {{else}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <el-radio-group v-model="form.{{tsField}}">
+            <el-radio label="1">请选择字典生成</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        {{/if}}
+        {{else if (hbs_eq htmlType "datetime")}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <el-date-picker clearable
+            v-model="form.{{tsField}}"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择{{columnComment}}">
+          </el-date-picker>
+        </el-form-item>
+        {{else if (hbs_eq htmlType "textarea")}}
+        <el-form-item label="{{columnComment}}" prop="{{tsField}}">
+          <el-input v-model="form.{{tsField}}" type="textarea" placeholder="请输入内容" />
+        </el-form-item>
+        {{/if}}
         {{/if}}
         {{/each}}
       </el-form>
@@ -133,7 +259,7 @@ import { list{{BusinessName}}, get{{BusinessName}}, del{{BusinessName}}, add{{Bu
 export default {
   name: "{{BusinessName}}",
   {{#if dicts}}
-  dicts: [{{dicts}}],
+  dicts: [{{{dicts}}}],
   {{/if}}
   data() {
     return {

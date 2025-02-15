@@ -175,8 +175,8 @@ export class GenTableService {
         // 设置主键列的信息。
         this.setPkColumn(table);
         
-        // 初始化Velocity模板引擎。
-        // 为表准备Velocity上下文。
+        // 初始化hbs模板引擎。
+        // 为表准备hbs上下文。
         const context = this.hbsUtils.prepareContext(table);
         
         // 获取要渲染的模板列表。
@@ -227,8 +227,8 @@ export class GenTableService {
         // 设置主键列的信息。
         this.setPkColumn(table);
         
-        // 初始化Velocity模板引擎。
-        // 为表准备Velocity上下文。
+        // 初始化hbs模板引擎。
+        // 为表准备hbs上下文。
         const context = this.hbsUtils.prepareContext(table);
         
         // 获取要渲染的模板列表。
