@@ -20,7 +20,7 @@ import { ContextHolderUtils } from './context-holder.utils';
 /**
  * 异步工厂（产生任务用）
  * 
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 @Processor('logs')

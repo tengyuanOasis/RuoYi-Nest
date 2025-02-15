@@ -3,7 +3,7 @@ import { UserException } from './UserException';
 /**
  * 黑名单IP异常类
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class BlackListException extends UserException {
     constructor() {

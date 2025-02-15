@@ -6,7 +6,7 @@ import { SysUserOnline } from '~/ruoyi-system/sys-user-online/entities/sys-user-
 /**
  * 在线用户 服务层处理
  * 
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 export class SysUserOnlineService

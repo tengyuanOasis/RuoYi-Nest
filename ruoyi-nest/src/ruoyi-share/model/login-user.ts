@@ -3,7 +3,7 @@ import { SysUser } from '~/ruoyi-system/sys-user/entities/sys-user.entity';
 /**
  * 登录用户身份权限
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class LoginUser {
     /**

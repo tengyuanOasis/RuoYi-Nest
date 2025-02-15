@@ -1,7 +1,7 @@
 /**
  * 通用常量信息
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class Constants {
     /**

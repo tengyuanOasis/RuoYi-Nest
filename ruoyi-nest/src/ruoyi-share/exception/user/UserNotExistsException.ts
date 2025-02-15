@@ -3,7 +3,7 @@ import { UserException } from './UserException';
 /**
  * 用户不存在异常类
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class UserNotExistsException extends UserException {
     constructor() {

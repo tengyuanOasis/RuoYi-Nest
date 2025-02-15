@@ -29,7 +29,7 @@ import { DemoModeGuard } from '~/ruoyi-share/guard/demo-mode.guard';
 /**
  * 启动程序
  * 
- * @author ruoyi
+ * @author erhu
  */
 @Module({
   imports: [

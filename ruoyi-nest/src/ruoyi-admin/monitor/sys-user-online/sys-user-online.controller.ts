@@ -21,7 +21,7 @@ import { LoginUser } from '~/ruoyi-share/model/login-user';
 /**
  * 在线用户监控
  * 
- * @author ruoyi
+ * @author erhu
  */
 @ApiTags('在线用户监控')
 @Controller('monitor/online')

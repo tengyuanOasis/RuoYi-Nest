@@ -8,7 +8,7 @@ import { SecurityUtils } from '~/ruoyi-share/utils/security.utils';
 /**
  * 用户权限处理
  * 
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 export class SysPermissionService {

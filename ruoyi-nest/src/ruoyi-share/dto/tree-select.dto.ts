@@ -4,7 +4,7 @@ import { SysMenu } from '~/ruoyi-system/sys-menu/entities/sys-menu.entity';
 /**
  * Treeselect树结构实体类
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class TreeSelect {
     /** 节点ID */

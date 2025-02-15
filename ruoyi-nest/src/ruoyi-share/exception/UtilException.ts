@@ -1,7 +1,7 @@
 /**
  * 工具类异常
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class UtilException extends Error {
     constructor(messageOrError: string | Error, error?: Error) {

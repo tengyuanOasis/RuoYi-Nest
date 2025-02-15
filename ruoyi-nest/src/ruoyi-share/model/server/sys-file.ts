@@ -1,7 +1,7 @@
 /**
  * 系统文件相关信息
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class SysFile
 {

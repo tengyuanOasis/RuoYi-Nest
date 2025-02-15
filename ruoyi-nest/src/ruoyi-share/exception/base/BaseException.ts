@@ -1,7 +1,7 @@
 /**
  * 基础异常
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class BaseException extends Error {
     private readonly module: string;

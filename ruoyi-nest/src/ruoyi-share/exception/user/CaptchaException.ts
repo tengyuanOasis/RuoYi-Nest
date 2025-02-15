@@ -4,7 +4,7 @@ import { UserException } from './UserException';
 /**
  * 验证码错误异常类
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class CaptchaException extends UserException {
     constructor() {

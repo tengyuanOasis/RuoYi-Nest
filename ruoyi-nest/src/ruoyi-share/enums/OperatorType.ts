@@ -1,7 +1,7 @@
 /**
  * 操作人类别
  * 
- * @author ruoyi
+ * @author erhu
  */
 export enum OperatorType {
     /**

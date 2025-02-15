@@ -15,7 +15,7 @@ import { SecurityUtils } from './security.utils';
 /**
  * 安全服务工具类
  * 
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 export class PasswordUtils {

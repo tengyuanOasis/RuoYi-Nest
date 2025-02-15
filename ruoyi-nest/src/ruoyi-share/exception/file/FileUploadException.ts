@@ -1,7 +1,7 @@
 /**
  * 文件上传异常类
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class FileUploadException extends Error {
     private readonly cause: Error;

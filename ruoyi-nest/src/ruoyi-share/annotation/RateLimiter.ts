@@ -5,7 +5,7 @@ import { CacheConstants } from '../constant/CacheConstants';
 /**
  * 限流注解
  * 
- * @author ruoyi
+ * @author erhu
  */
 export interface RateLimiterOptions {
     /**

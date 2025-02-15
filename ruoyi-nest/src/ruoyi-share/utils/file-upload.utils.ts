@@ -12,7 +12,7 @@ import * as dayjs from 'dayjs';
 /**
  * 文件上传工具类
  *
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 export class FileUploadUtils {

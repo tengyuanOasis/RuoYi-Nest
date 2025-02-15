@@ -1,7 +1,7 @@
 /**
  * 用户状态
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class UserStatus {
     static readonly OK = new UserStatus('0', '正常');

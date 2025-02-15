@@ -1,7 +1,7 @@
 /**
  * 任务调度通用常量
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class ScheduleConstants {
     /** 任务类名 */

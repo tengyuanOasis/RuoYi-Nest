@@ -1,7 +1,7 @@
 /**
  * 业务操作类型
  * 
- * @author ruoyi
+ * @author erhu
  */
 export enum BusinessType {
     /**

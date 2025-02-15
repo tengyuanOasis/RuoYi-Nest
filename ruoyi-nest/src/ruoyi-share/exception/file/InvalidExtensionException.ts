@@ -1,7 +1,7 @@
 /**
  * 文件上传错误异常类
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class InvalidExtensionException extends Error {
     public allowedExtension: string[];

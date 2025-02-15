@@ -9,7 +9,7 @@ import { StringUtils } from './string.utils';
 /**
  * 文件类型工具类
  *
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 export class FileTypeUtils {

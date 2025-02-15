@@ -1,7 +1,7 @@
 /**
  * 返回状态码
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class HttpStatus {
     /**

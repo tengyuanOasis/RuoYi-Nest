@@ -5,7 +5,7 @@ import { OperatorType } from '../enums/OperatorType';
 /**
  * 自定义操作日志记录注解
  * 
- * @author ruoyi
+ * @author erhu
  */
 export interface LogOptions {
     /** 模块 */

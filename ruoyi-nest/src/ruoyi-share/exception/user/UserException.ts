@@ -3,7 +3,7 @@ import { GlobalException } from '../GlobalException';
 /**
  * 用户信息异常类
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class UserException extends GlobalException {
     constructor(code: string, args: any[] | null) {

@@ -1,7 +1,7 @@
 /**
  * 限流类型
  *
- * @author ruoyi
+ * @author erhu
  */
 export enum LimitType {
     /**

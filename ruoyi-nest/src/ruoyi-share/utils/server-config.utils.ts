@@ -1,7 +1,7 @@
 /**
  * 服务相关配置
  * 
- * @author ruoyi
+ * @author erhu
  */
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';

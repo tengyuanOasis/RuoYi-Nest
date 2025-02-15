@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 /**
  * Read token related configuration
  * 
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 export class TokenConfigService {

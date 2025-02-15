@@ -19,7 +19,7 @@ import { PasswordUtils } from '~/ruoyi-share/utils/password.utils';
 /**
  * 系统访问记录
  * 
- * @author ruoyi
+ * @author erhu
  */
 @ApiTags('系统访问记录')
 @Controller('monitor/logininfor')

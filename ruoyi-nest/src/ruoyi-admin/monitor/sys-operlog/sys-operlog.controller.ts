@@ -18,7 +18,7 @@ import { BusinessType } from '~/ruoyi-share/enums/BusinessType';
 /**
  * 操作日志记录
  * 
- * @author ruoyi
+ * @author erhu
  */
 @ApiTags('操作日志')
 @Controller('monitor/operlog')

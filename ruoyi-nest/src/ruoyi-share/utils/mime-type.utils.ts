@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 /**
  * 媒体类型工具类
  * 
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 export class MimeTypeUtils {

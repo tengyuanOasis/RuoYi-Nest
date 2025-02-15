@@ -3,7 +3,7 @@ import { Excel, ExcelOptions } from './Excel';
 /**
  * Excel注解集
  * 
- * @author ruoyi
+ * @author erhu
  */
 export function Excels(excels: ExcelOptions[]) {
     return function(target: any, propertyKey: string) {

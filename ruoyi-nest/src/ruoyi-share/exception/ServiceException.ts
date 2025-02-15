@@ -1,7 +1,7 @@
 /**
  * 业务异常
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class ServiceException extends Error {
     private code: number;

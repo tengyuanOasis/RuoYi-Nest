@@ -18,7 +18,7 @@ import { join } from 'path';
 /**
  * Web容器初始化
  * 
- * @author ruoyi
+ * @author erhu
  */
 class RuoYiServletInitializer {
   public static async bootstrap(): Promise<NestExpressApplication> {

@@ -3,7 +3,7 @@ import { FileUploadException } from './FileUploadException';
 /**
  * 文件名称超长限制异常类
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class FileNameLengthLimitExceededException extends FileUploadException {
     constructor(defaultFileNameLength: number) {

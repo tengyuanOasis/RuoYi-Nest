@@ -1,7 +1,7 @@
 /**
  * 全局异常
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class GlobalException extends Error {
     private detailMessage: string;

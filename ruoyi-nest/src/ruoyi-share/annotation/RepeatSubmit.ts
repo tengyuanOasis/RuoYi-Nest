@@ -3,7 +3,7 @@ import { SetMetadata } from '@nestjs/common';
 /**
  * 自定义注解防止表单重复提交
  * 
- * @author ruoyi
+ * @author erhu
  */
 export interface RepeatSubmitOptions {
     /**

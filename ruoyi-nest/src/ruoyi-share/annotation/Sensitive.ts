@@ -4,7 +4,7 @@ import { DesensitizedType } from '../enums/DesensitizedType';
 /**
  * 数据脱敏注解
  *
- * @author ruoyi
+ * @author erhu
  */
 export interface SensitiveOptions {
     /**

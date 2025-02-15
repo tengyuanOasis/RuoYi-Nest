@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 /**
  * 读取代码生成相关配置
  * 
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 export class GenConfigService {

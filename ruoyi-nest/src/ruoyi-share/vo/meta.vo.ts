@@ -3,7 +3,7 @@ import { StringUtils } from "../utils/string.utils";
 /**
  * 路由显示信息
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class MetaVo {
     /**

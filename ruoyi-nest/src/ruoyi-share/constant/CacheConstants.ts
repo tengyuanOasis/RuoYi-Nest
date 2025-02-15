@@ -1,7 +1,7 @@
 /**
  * 缓存的key 常量
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class CacheConstants {
     /**

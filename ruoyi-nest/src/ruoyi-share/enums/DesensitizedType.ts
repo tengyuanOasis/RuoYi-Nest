@@ -1,7 +1,7 @@
 /**
  * 脱敏类型
  *
- * @author ruoyi
+ * @author erhu
  */
 export enum DesensitizedType {
     /**

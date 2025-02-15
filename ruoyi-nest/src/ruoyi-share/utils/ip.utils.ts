@@ -4,7 +4,7 @@ import { StringUtils } from './string.utils';
 /**
  * 获取IP方法
  * 
- * @author ruoyi
+ * @author erhu
  */
 @Injectable()
 export class IpUtils {

@@ -4,7 +4,7 @@ import { UserException } from './UserException';
 /**
  * 用户密码不正确或不符合规范异常类
  * 
- * @author ruoyi
+ * @author erhu
  */
 export class UserPasswordNotMatchException extends UserException {
     constructor() {
