@@ -5,6 +5,8 @@ import { StringUtils } from "./string.utils"
 export class HbsSqlRenderUtils { 
 
     public static renderSql(context) {
+        const tableOptions = context.table.options ? JSON.parse(context.table.options) : {}
+        const parentMenuId = tableOptions.parentMenuId || 0
         const tableComment = context.table.tableComment
         const tableNamePrefix = context.tableName.split('_')[0]
         // 举例 SysConfig => Config
@@ -19,7 +21,7 @@ export class HbsSqlRenderUtils {
         return `
 -- 菜单 SQL
 insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-values('${context.functionName}表', '3', '1', '${context.businessName}', '${context.moduleName}/${context.businessName}/index', 1, 0, 'C', '0', '0', '${context.permissionPrefix}:list', '#', 'admin', sysdate(), '', null, '${context.functionName}菜单');
+values('${context.functionName}表', '${parentMenuId}', '1', '${context.businessName}', '${context.moduleName}/${context.businessName}/index', 1, 0, 'C', '0', '0', '${context.permissionPrefix}:list', '#', 'admin', sysdate(), '', null, '${context.functionName}菜单');
 
 -- 按钮父菜单ID
 SELECT @parentId := LAST_INSERT_ID();
