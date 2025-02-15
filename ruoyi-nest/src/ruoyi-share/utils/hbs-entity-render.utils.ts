@@ -38,45 +38,45 @@ GenTableEntityUtils.isCrud(context.table) ? `import { BaseEntity } from '~/ruoyi
         const tableNameWithMiddleLine = context.tableName.replace(/_/g, '-')
         const BaseEntity = GenTableEntityUtils.isCrud(context.table) ? 'BaseEntity' : 'TreeEntity'
         return `
-    @Entity('${context.tableName}')
-    export class ${context.ClassName} extends ${BaseEntity} {
-        /** ${context.pkColumn.columnComment} */
-        @PrimaryGeneratedColumn('increment', {        
-            name: '${context.pkColumn.tsField.replace(/([A-Z])/g, '_$1').toLowerCase()}',
-            comment: '${context.pkColumn.columnComment}',
-        })
-        @Excel({
-            name: "${context.pkColumn.columnComment}", 
-            type: ExcelType.EXPORT, 
-            cellType: ColumnType.NUMERIC, 
-            prompt: "${context.pkColumn.columnComment}"
-        })
-        @ApiPropertyOptional({ description: '${context.pkColumn.columnComment}' })
-        @IsOptional()
-        ${context.pkColumn.tsField}: ${context.pkColumn.tsType};
+@Entity('${context.tableName}')
+export class ${context.ClassName} extends ${BaseEntity} {
+    /** ${context.pkColumn.columnComment} */
+    @PrimaryGeneratedColumn('increment', {        
+        name: '${context.pkColumn.tsField.replace(/([A-Z])/g, '_$1').toLowerCase()}',
+        comment: '${context.pkColumn.columnComment}',
+    })
+    @Excel({
+        name: "${context.pkColumn.columnComment}", 
+        type: ExcelType.EXPORT, 
+        cellType: ColumnType.NUMERIC, 
+        prompt: "${context.pkColumn.columnComment}"
+    })
+    @ApiPropertyOptional({ description: '${context.pkColumn.columnComment}' })
+    @IsOptional()
+    ${context.pkColumn.tsField}: ${context.pkColumn.tsType};
 
-        ${
-            context.columns
-            .filter(column => !GenTableEntityUtils.isSuperColumn(column, context.tsField))
-            .filter(column => column.tsField !== context.pkColumn.tsField)
-            .map(column => {
-                return `
-        /** ${column.columnComment} */        
-        @Column({ 
-            name: '${column.tsField.replace(/([A-Z])/g, '_$1').toLowerCase()}',
-            comment: '${column.columnComment}' 
-        })
-        @Excel({
-            name: "${column.columnComment}"
-        })
-        @ApiPropertyOptional({ description: "${column.columnComment}" })
-        @IsOptional()
-        @IsString()
-        ${column.tsField}: ${column.tsType};            
-                `
-            }).join('\n')
-        }
+    ${
+        context.columns
+        .filter(column => !GenTableEntityUtils.isSuperColumn(column, context.tsField))
+        .filter(column => column.tsField !== context.pkColumn.tsField)
+        .map(column => {
+            return `
+    /** ${column.columnComment} */        
+    @Column({ 
+        name: '${column.tsField.replace(/([A-Z])/g, '_$1').toLowerCase()}',
+        comment: '${column.columnComment}' 
+    })
+    @Excel({
+        name: "${column.columnComment}"
+    })
+    @ApiPropertyOptional({ description: "${column.columnComment}" })
+    @IsOptional()
+    @IsString()
+    ${column.tsField}: ${column.tsType};            
+            `
+        }).join('\n')
     }
+}
         `
     }
 
