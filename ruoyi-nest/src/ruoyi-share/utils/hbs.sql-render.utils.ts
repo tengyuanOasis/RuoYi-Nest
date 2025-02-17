@@ -21,26 +21,26 @@ export class HbsSqlRenderUtils {
         return `
 -- 菜单 SQL
 insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-values('${context.functionName}表', '${parentMenuId}', '1', '${context.businessName}', '${context.moduleName}/${context.businessName}/index', 1, 0, 'C', '0', '0', '${context.permissionPrefix}:list', '#', 'admin', sysdate(), '', null, '${context.functionName}菜单');
+values('${tableComment}', '${parentMenuId}', '1', '${context.businessName}', '${context.moduleName}/${context.businessName}/index', 1, 0, 'C', '0', '0', '${context.permissionPrefix}:list', '#', 'admin', sysdate(), '', null, '${context.functionName}菜单');
 
 -- 按钮父菜单ID
 SELECT @parentId := LAST_INSERT_ID();
 
 -- 按钮 SQL
 insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-values('${context.functionName}${tableComment}表查询', @parentId, '1',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:query',        '#', 'admin', sysdate(), '', null, '');
+values('${tableComment}查询', @parentId, '1',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:query',        '#', 'admin', sysdate(), '', null, '');
 
 insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-values('${context.functionName}${tableComment}表新增', @parentId, '2',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:add',          '#', 'admin', sysdate(), '', null, '');
+values('${tableComment}新增', @parentId, '2',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:add',          '#', 'admin', sysdate(), '', null, '');
 
 insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-values('${context.functionName}${tableComment}表修改', @parentId, '3',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:edit',         '#', 'admin', sysdate(), '', null, '');
+values('${tableComment}修改', @parentId, '3',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:edit',         '#', 'admin', sysdate(), '', null, '');
 
 insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-values('${context.functionName}${tableComment}表删除', @parentId, '4',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:remove',       '#', 'admin', sysdate(), '', null, '');
+values('${tableComment}删除', @parentId, '4',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:remove',       '#', 'admin', sysdate(), '', null, '');
 
 insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-values('${context.functionName}${tableComment}表导出', @parentId, '5',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:export',       '#', 'admin', sysdate(), '', null, '');
+values('${tableComment}导出', @parentId, '5',  '#', '', 1, 0, 'F', '0', '0', '${context.permissionPrefix}:export',       '#', 'admin', sysdate(), '', null, '');
         `
     }
 
