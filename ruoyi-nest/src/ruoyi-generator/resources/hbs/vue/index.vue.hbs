@@ -172,7 +172,7 @@
               v-for="dict in dict.type.{{dictType}}"
               :key="dict.value"
               :label="dict.label"
-              {{#if (hbs_or (hbs_eq javaType "Integer") (hbs_eq javaType "Long"))}} 
+              {{#if (hbs_eq tsType "number")}} 
               :value="parseInt(dict.value)"
               {{else}}
               :value="dict.value"
@@ -195,7 +195,7 @@
               v-for="dict in dict.type.{{dictType}}"
               :key="dict.value"
               :label="dict.value">
-              {{dict.label}}
+              \{{dict.label}}
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
@@ -213,12 +213,12 @@
             <el-radio
               v-for="dict in dict.type.{{dictType}}"
               :key="dict.value"
-              {{#if (hbs_or (hbs_eq javaType "Integer") (hbs_eq javaType "Long"))}}
+              {{#if (hbs_eq tsType "number")}}   
               :label="parseInt(dict.value)"
               {{else}}
               :label="dict.value"
               {{/if}}
-            >{{dict.label}}</el-radio>
+            >\{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
         {{else}}
