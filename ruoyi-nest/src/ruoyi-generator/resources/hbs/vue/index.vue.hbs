@@ -105,13 +105,31 @@
     <el-table v-loading="loading" :data="{{businessName}}List" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       {{#each columns}}
-      {{#if (hbs_eq htmlType "datetime")}}
+      {{#if (hbs_eq isPk '1')}}
+      <el-table-column label="{{columnComment}}" align="center" prop="{{tsField}}" />
+      {{else if (hbs_and isList (hbs_eq htmlType "datetime"))}}
       <el-table-column label="{{columnComment}}" align="center" prop="{{tsField}}" width="180">
         <template slot-scope="scope">
-          <span>\{{parseTime(scope.row.{{tsField}}, '{y}-{m}-{d}')}}</span>
+          <span>\{{ parseTime(scope.row.{{tsField}}, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      {{else}}
+      {{else if (hbs_and isList (hbs_eq htmlType "imageUpload"))}}
+      <el-table-column label="{{columnComment}}" align="center" prop="{{tsField}}" width="100">
+        <template slot-scope="scope">
+          <image-preview :src="scope.row.{{tsField}}" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
+      {{else if (hbs_and isList dictType)}}
+<el-table-column label="{{columnComment}}" align="center" prop="{{tsField}}">
+        <template slot-scope="scope">
+          {{#if (hbs_eq htmlType "checkbox")}}
+          <dict-tag :options="dict.type.{{dictType}}" :value="scope.row.{{tsField}} ? scope.row.{{tsField}}.split(',') : []"/>
+          {{else}}
+          <dict-tag :options="dict.type.{{dictType}}" :value="scope.row.{{tsField}}"/>
+          {{/if}}
+        </template>
+      </el-table-column>
+      {{else if (hbs_and isList tsField)}}
       <el-table-column label="{{columnComment}}" align="center" prop="{{tsField}}" />
       {{/if}}
       {{/each}}
