@@ -36,8 +36,9 @@ export class SysDictTypeController extends BaseController   {
   @Get('/list')
   @ApiOperation({ summary: '获取字典类型列表' })
   @PreAuthorize('hasPermi("system:dict:list")')
-  async list(@Query() dictType: SysDictType) {
-    const [list, total] = await this.dictTypeService.selectDictTypeList(dictType);
+  async list(@Query() query: SysDictType) {
+    this.startPage(query);
+    const [list, total] = await this.dictTypeService.selectDictTypeList(query);
     return this.getDataTable(list, total);
   }
 
