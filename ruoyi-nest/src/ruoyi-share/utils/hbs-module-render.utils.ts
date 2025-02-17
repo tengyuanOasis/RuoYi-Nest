@@ -15,6 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ${context.ClassName}Service } from '~/${context.packageName}/${tableNameWithMiddleLine}/${tableNameWithMiddleLine}.service';
 import { ${context.ClassName} } from '~/${context.packageName}/${tableNameWithMiddleLine}/entities/${tableNameWithMiddleLine}.entity';
 import { ${context.ClassName}Repository } from '~/${context.packageName}/${tableNameWithMiddleLine}/repositories/${tableNameWithMiddleLine}.repository';
+import { ${context.ClassName}Controller } from '~/${context.packageName}/${tableNameWithMiddleLine}/${tableNameWithMiddleLine}.controller';
 import { RedisModule } from '~/ruoyi-share/redis/redis.module';
 
 /**
@@ -28,7 +29,7 @@ import { RedisModule } from '~/ruoyi-share/redis/redis.module';
         `
     }
     public static renderClass(context) {
-        const tableNamePrefix = context.tableName.split('_')[0]
+      const tableNamePrefix = context.tableName.split('_')[0]
         const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
         const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
         const alias = ClassNameWithoutSysPrefixAndLowerCaseFirstLetter.charAt(0)
@@ -44,7 +45,7 @@ const providers = [${context.ClassName}Service, ${context.ClassName}Repository];
     TypeOrmModule.forFeature([${context.ClassName}]),
     RedisModule
   ],
-  controllers: [],
+  controllers: [${context.ClassName}Controller],
   providers,
   exports: [${context.ClassName}Service,${context.ClassName}Repository]
 })
