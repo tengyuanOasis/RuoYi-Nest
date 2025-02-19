@@ -5,6 +5,7 @@ import { AjaxResult } from '~/ruoyi-share/response/ajax-result';
 import { RegisterBodyDto } from '~/ruoyi-share/dto/register-body.dto';
 import { SysConfigService } from '~/ruoyi-system/sys-config/sys-config.service';
 import { SysRegisterService } from '~/ruoyi-admin/system/sys-register/sys-register.service';
+import { Public } from '~/ruoyi-framework/auth/decorators/public.decorator';
 
 @ApiTags('注册验证')
 @Controller('register')
@@ -18,6 +19,7 @@ export class SysRegisterController extends BaseController {
 
   @ApiOperation({ summary: '用户注册' })
   @Post()
+  @Public()
   async register(@Body() user: RegisterBodyDto) {
     if (!("true" === await this.configService.selectConfigByKey("sys.account.registerUser"))) {
       return this.error("当前系统没有开启注册功能！");
