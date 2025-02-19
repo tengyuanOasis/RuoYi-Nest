@@ -116,7 +116,8 @@ export class GenTableRepository {
 
         const rows = result.map(row => this.tableRepository.create(row));
         const total = rows.length;
-        return [rows, total];
+        const offset = (table.params.pageNum - 1) * table.params.pageSize;
+        return [rows.slice(offset, offset + table.params.pageSize), total];
     }
 
     async selectDbTableListByNames(tableNames: string[]): Promise<GenTable[]> {
