@@ -20,8 +20,16 @@ export function Transactional() {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
+      // 保存当前上下文中的所有内容
+      const currentContext = contextHolderUtils.getAllContext();
+
       return contextHolderUtils.runWithContext(async () => {
         try {
+          // 恢复之前的上下文
+          Object.entries(currentContext).forEach(([key, value]) => {
+            contextHolderUtils.setContext(key, value);
+          });
+
           // 设置上下文
           contextHolderUtils.setContext('transactionManager', queryRunner.manager);
 

@@ -12,7 +12,20 @@ export class ContextHolderUtils{
       store.set(key, value);
     }
   }
-
+  /**
+   * 获取所有上下文
+   */
+  getAllContext(): Record<string, any> {
+    const store = this.asyncLocalStorage.getStore();
+    if (!store) {
+      return {};
+    }
+    const context = {};
+    store.forEach((value, key) => {
+      context[key] = value;
+    });
+    return context;
+  }
   getContext(key: string) {
     const store = this.asyncLocalStorage.getStore();
     return store ? store.get(key) : null;
