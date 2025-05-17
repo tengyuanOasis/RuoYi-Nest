@@ -304,7 +304,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         {{#each columns}}
-        {{#if isQuery}}
+        {{#if (hbs_eq isQuery '1')}}
         {{tsField}}: null{{#unless @last}},{{/unless}}
         {{/if}}
         {{/each}}
@@ -314,7 +314,7 @@ export default {
       // 表单校验
       rules: {
         {{#each columns}}
-        {{#if required}}
+        {{#if (hbs_eq isRequired '1')}}
         {{tsField}}: [
           { required: true, message: "{{columnComment}}不能为空", trigger: "blur" }
         ]{{#unless @last}},{{/unless}}
