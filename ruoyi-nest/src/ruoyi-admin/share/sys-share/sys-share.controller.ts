@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, Res, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Res, Req, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { BaseController } from '~/ruoyi-share/controller/base-controller';
 import { PreAuthorize } from '~/ruoyi-share/annotation/PreAuthorize';
@@ -14,6 +14,7 @@ import { FileUploadUtils } from '~/ruoyi-share/utils/file-upload.utils';
 import { FileUtils } from '~/ruoyi-share/utils/file.utils';
 import { ServerConfigUtils } from '~/ruoyi-share/utils/server-config.utils';
 import {Response} from 'express'
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 @ApiTags('通用')
 @Controller()
 export class SysShareController extends BaseController {
@@ -76,7 +77,7 @@ export class SysShareController extends BaseController {
 
   @ApiOperation({ summary: '通用下载请求' })
   @Public()
-  @Get('download')
+  @Get('common/download')
   async fileDownload(@Query('fileName') fileName: string, @Query('delete') isDelte: boolean, @Res() response:Response) {
     try {
       if (!this.fileUtils.checkAllowDownload(fileName)) {
@@ -100,9 +101,11 @@ export class SysShareController extends BaseController {
 
   @ApiOperation({ summary: '通用上传请求（单个）' })
   @Public()
-  @Post('upload')
-  async uploadFile(@Body('file') file: any, @Req() request) {
+  @Post('common/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() request) {
     try {
+      this.fileUploadUtils.decodeFileName(file);
       // 上传文件路径
       const filePath = this.ruoYiConfigService.getUploadPath();
       // 上传并返回新文件名称
@@ -112,7 +115,7 @@ export class SysShareController extends BaseController {
       ajax.url = url;
       ajax.fileName = fileName;
       ajax.newFileName = this.fileUtils.getName(fileName);
-      ajax.originalFilename = file.originalFilename;
+      ajax.originalFilename = file.originalname;
       return ajax;
     } catch (error) {
       return this.error(error.message);
@@ -121,8 +124,9 @@ export class SysShareController extends BaseController {
 
   @ApiOperation({ summary: '通用上传请求（多个）' })
   @Public()
-  @Post('uploads')
-  async uploadFiles(@Body('files') files: any[], @Req() request) {
+  @Post('common/uploads')
+  @UseInterceptors(FilesInterceptor('files'))
+  async uploadFiles(@UploadedFiles() files: Express.Multer.File[], @Req() request) {
     try {
       // 上传文件路径
       const filePath = this.ruoYiConfigService.getUploadPath();
@@ -131,13 +135,14 @@ export class SysShareController extends BaseController {
       const newFileNames = [];
       const originalFilenames = [];
       for (const file of files) {
+        this.fileUploadUtils.decodeFileName(file);
         // 上传并返回新文件名称
         const fileName = await this.fileUploadUtils.uploadWithBaseDir(filePath, file);
         const url = this.serverConfigUtils.getUrl(request) + fileName;
         urls.push(url);
         fileNames.push(fileName);
         newFileNames.push(this.fileUtils.getName(fileName));
-        originalFilenames.push(file.originalFilename);
+        originalFilenames.push(file.originalname);
       }
       const ajax:any = this.success();
       ajax.urls = urls.join(',');
@@ -152,7 +157,7 @@ export class SysShareController extends BaseController {
 
   @ApiOperation({ summary: '本地资源通用下载' })
   @Public()
-  @Get('download/resource')
+  @Get('common/download/resource')
   async resourceDownload(@Query('resource') resource: string, @Res() response: Response) {
     try {
       if (!this.fileUtils.checkAllowDownload(resource)) {

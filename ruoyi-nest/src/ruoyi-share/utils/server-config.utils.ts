@@ -21,8 +21,16 @@ export class ServerConfigUtils
 
     public getDomain(request: any): string
     {
-        const url: any = request.getRequestURL();
-        const contextPath: string = request.getServletContext().getContextPath();
-        return url.delete(url.length - request.getRequestURI().length, url.length).append(contextPath).toString();
+        // 获取协议 (http/https)
+        const protocol = request.protocol;
+            
+        // 获取主机名和端口
+        const host = request.get('host');
+
+        // 获取上下文路径（如果有的话）
+        const contextPath = ''; // 如果需要自定义上下文路径，可以在这里配置
+
+        // 组合完整的域名
+        return `${protocol}://${host}${contextPath}`;
     }
 }

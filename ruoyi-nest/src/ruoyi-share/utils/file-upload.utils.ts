@@ -58,6 +58,13 @@ export class FileUploadUtils {
         }
     }
 
+    // 解决中文文件名乱码问题
+    decodeFileName(file: Express.Multer.File) {
+        if (!/[^\u0000-\u00ff]/.test(file.originalname)) {  
+            file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');  
+        }
+    }
+
     /**
      * 根据文件路径上传
      */
