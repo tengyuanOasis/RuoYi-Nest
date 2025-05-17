@@ -161,7 +161,7 @@ export class SysMenuService {
     for (const menu of menus) {
       const router = new RouterVo();
       router.hidden = menu.visible === '1';
-      router.name = this.getRouteName(menu);
+      router.name = this.getRouteNameByMenu(menu);
       router.path = this.getRouterPath(menu);
       router.component = this.getComponent(menu);
       router.query = menu.query;
@@ -182,7 +182,7 @@ export class SysMenuService {
         const children = new RouterVo();
         children.path = menu.path;
         children.component = menu.component;
-        children.name = this.getRouteName(menu);
+        children.name = this.getRouteName(menu.routeName,menu.path);
         children.meta = new MetaVo(this.stringUtils)
         children.meta.title = menu.menuName
         children.meta.icon = menu.icon
@@ -201,7 +201,7 @@ export class SysMenuService {
         const routerPath = this.innerLinkReplaceEach(menu.path);
         children.path = routerPath;
         children.component = UserConstants.INNER_LINK;
-        children.name = this.getRouteNameByNameAndPath(menu.routeName, routerPath);
+        children.name = this.getRouteName(menu.routeName, routerPath);
         children.meta = new MetaVo(this.stringUtils)
         children.meta.title = menu.menuName
         children.meta.icon = menu.icon
@@ -213,19 +213,24 @@ export class SysMenuService {
     }
     return routers;
   }
+
+
   /**
-* 获取路由名称
-* 
-* @param menu 菜单信息
-* @return 路由名称
-*/
-  public getRouteName(menu: SysMenu): string {
-    // 非外链并且是一级目录（类型为目录）
-    if (this.isMenuFrame(menu)) {
-      return '';
-    }
-    return this.getRouteNameByNameAndPath(menu.routeName, menu.path);
+ * 获取路由名称
+ * 
+ * @param menu 菜单信息
+ * @return 路由名称
+ */
+  public getRouteNameByMenu(menu: SysMenu): string
+  {
+      // 非外链并且是一级目录（类型为目录）
+      if (this.isMenuFrame(menu))
+      {
+          return '';
+      }
+      return this.getRouteName(menu.routeName, menu.path);
   }
+ 
 
   /**
 * 获取路由名称，如没有配置路由名称则取路由地址
@@ -234,7 +239,7 @@ export class SysMenuService {
 * @param path 路由地址
 * @return 路由名称（驼峰格式）
 */
-  public getRouteNameByNameAndPath(name: string, path: string): string {
+  public getRouteName(name: string, path: string): string {
     const routerName = name ? name : path;
     return this.stringUtils.capitalize(routerName);
   }
@@ -248,7 +253,7 @@ export class SysMenuService {
 * @return 结果
 */
   public isMenuFrame(menu: SysMenu): boolean {
-    return menu.parentId === 0 && menu.menuType === 'M' && menu.isFrame === '0';
+    return menu.parentId === 0 && menu.menuType === UserConstants.TYPE_MENU && menu.isFrame === UserConstants.NO_FRAME;
   }
 
 
@@ -287,7 +292,7 @@ export class SysMenuService {
 * @return 结果
 */
   public isInnerLink(menu: SysMenu): boolean {
-    return menu.isFrame === '0' && this.stringUtils.isHttp(menu.path);
+    return menu.isFrame === UserConstants.NO_FRAME && this.stringUtils.isHttp(menu.path);
   }
 
   /**
