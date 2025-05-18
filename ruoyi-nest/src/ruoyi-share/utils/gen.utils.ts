@@ -21,14 +21,17 @@ export class GenUtils {
      * 初始化表信息
      */
     public initTable(genTable: GenTable, operName: string): void {
+        const defaultModuleName = genTable.tableName.split('_')[0];
+        const defaultPackageName = 'ruoyi-' + genTable.tableName.split('_')[0];
+        const defaultBusinessName = StringUtils.toCamelCase(genTable.tableName.split('_').slice(1).join('_'));
         // 举例 sysConfig
         genTable.className = this.convertClassName(genTable.tableName);
         // 举例 ruoyi-system
-        genTable.packageName = genTable.packageName;
+        genTable.packageName = genTable.packageName || defaultPackageName;
         // 举例 system
-        genTable.moduleName = genTable.moduleName;
+        genTable.moduleName = genTable.moduleName || defaultModuleName;
         // 举例 config
-        genTable.businessName = genTable.businessName;
+        genTable.businessName = genTable.businessName || defaultBusinessName;
         // 举例 参数配置表
         genTable.functionName = this.replaceText(genTable.tableComment);
         // 举例 ruoyi

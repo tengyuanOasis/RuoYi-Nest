@@ -97,6 +97,9 @@ export class ${context.ClassName}Controller extends BaseController {
     async add(@Body() ${context.className}: ${context.ClassName}, @Req() req) {
         const loginUser = req.user;
         ${context.className}.createBy = loginUser.getUsername();
+        ${context.className}.createTime = new Date();
+        ${context.className}.updateTime = new Date();
+        ${context.className}.updateBy = loginUser.getUsername();
         return this.success(await this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Service.insert${ClassNameWithoutSysPrefix}(${context.className}));
     }
 
@@ -111,6 +114,7 @@ export class ${context.ClassName}Controller extends BaseController {
     async edit(@Body() ${context.className}: ${context.ClassName}, @Req() req) {
         const loginUser = req.user;
         ${context.className}.updateBy = loginUser.getUsername();
+        ${context.className}.updateTime = new Date();
         await this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Service.update${ClassNameWithoutSysPrefix}(${context.className})
         return this.success();
     }
