@@ -97,7 +97,7 @@ export class ${context.ClassName}Controller extends BaseController {
     async add(@Body() ${context.className}: ${context.ClassName}, @Req() req) {
         const loginUser = req.user;
         ${context.className}.createBy = loginUser.getUsername();
-        return this.toAjax(await this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Service.insert${ClassNameWithoutSysPrefix}(${context.className}));
+        return this.success(await this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Service.insert${ClassNameWithoutSysPrefix}(${context.className}));
     }
 
     /**
