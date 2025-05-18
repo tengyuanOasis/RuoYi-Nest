@@ -175,7 +175,7 @@ export class HbsUtils {
         hbsContext.datetime = daysjs().format('YYYY-MM-DD');
         hbsContext.pkColumn = genTable.pkColumn;
         hbsContext.importList = this.getImportList(genTable);
-        hbsContext.permissionPrefix = this.getPermissionPrefix(moduleName, businessName);
+        hbsContext.permissionPrefix = this.getPermissionPrefix(genTable.tableName, genTable.businessName);
         hbsContext.columns = genTable.columns;
         hbsContext.table = genTable;
         hbsContext.dicts = this.getDicts(genTable);    
@@ -424,13 +424,14 @@ export class HbsUtils {
     /**
      * 获取权限前缀
      *
-     * @param moduleName 模块名称
+     * @param tableName 表名称
      * @param businessName 业务名称
      * @return 返回权限前缀
      */
-    public getPermissionPrefix(moduleName: string, businessName: string): string
+    public getPermissionPrefix(tableName: string, businessName: string): string
     {
-          return `${moduleName}:${businessName}`;
+          const tableNamePrefix = tableName.split('_')[0]
+          return `${tableNamePrefix}:${businessName}`
     }
   
     /**

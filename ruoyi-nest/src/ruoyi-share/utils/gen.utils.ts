@@ -24,11 +24,11 @@ export class GenUtils {
         // 举例 sysConfig
         genTable.className = this.convertClassName(genTable.tableName);
         // 举例 ruoyi-system
-        genTable.packageName = this.genConfigService.getPackageName();
+        genTable.packageName = genTable.packageName;
         // 举例 system
-        genTable.moduleName = this.getModuleName(this.genConfigService.getPackageName());
+        genTable.moduleName = genTable.moduleName;
         // 举例 config
-        genTable.businessName = this.getBusinessName(genTable.tableName);
+        genTable.businessName = genTable.businessName;
         // 举例 参数配置表
         genTable.functionName = this.replaceText(genTable.tableComment);
         // 举例 ruoyi
@@ -132,18 +132,6 @@ export class GenUtils {
         let lastIndex = packageName.lastIndexOf("-");
         let nameLength = packageName.length;
         return packageName.substring(lastIndex + 1, nameLength);
-    }
-
-    /**
-     * 获取业务名
-     * 
-     * @param tableName 表名
-     * @return 业务名
-     */
-    public getBusinessName(tableName: string): string {
-        let lastIndex = tableName.lastIndexOf("_");
-        let nameLength = tableName.length;
-        return tableName.substring(lastIndex + 1, nameLength);
     }
 
     /**

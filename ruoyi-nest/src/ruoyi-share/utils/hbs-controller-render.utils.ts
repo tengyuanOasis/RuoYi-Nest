@@ -38,7 +38,7 @@ import { ExcelUtils } from '~/ruoyi-share/utils/excel.utils';
         const tableNameWithMiddleLine = context.tableName.replace(/_/g, '-')
         return `
 @ApiTags('${context.functionName}')
-@Controller('${context.moduleName}/${context.businessName}')
+@Controller('${context.moduleName}/${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}')
 export class ${context.ClassName}Controller extends BaseController {
     constructor(
         private readonly ${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Service: ${context.ClassName}Service,

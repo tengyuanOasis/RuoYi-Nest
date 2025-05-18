@@ -178,7 +178,7 @@ export class GenTableService {
         // 初始化hbs模板引擎。
         // 为表准备hbs上下文。
         const context = this.hbsUtils.prepareContext(table);
-        
+
         // 获取要渲染的模板列表。
         const templates = this.hbsUtils.getTemplateList(table.tplCategory, table.tplWebType);
         
@@ -214,6 +214,7 @@ export class GenTableService {
      */
     async generatorCode(tableName: string,isDownload?:boolean): Promise<Array<{path: string, content: string}>> {
         const table = await this.genTableRepository.selectGenTableByName(tableName);
+
         
         this.genUtils.initTable(table, '');
 
@@ -230,6 +231,8 @@ export class GenTableService {
         // 初始化hbs模板引擎。
         // 为表准备hbs上下文。
         const context = this.hbsUtils.prepareContext(table);
+
+
         
         // 获取要渲染的模板列表。
         const templates = this.hbsUtils.getTemplateList(table.tplCategory, table.tplWebType);
@@ -256,7 +259,9 @@ export class GenTableService {
                     folderName = 'repositories/'
                 }
                 const className = table.className.replace(/([A-Z])/g, '-$1').toLowerCase();
+
                 const path = `${className}/${folderName}${className}.${fileName}`
+
                 
                 fileList.push({path: path, content: renderedCode})
             }else{
@@ -271,20 +276,21 @@ export class GenTableService {
                 if(fileName === 'sql'){
                     path = `${table.businessName}Menu.sql`
                 }else{
+                    const tableNamePrefix = context.tableName.split('_')[0]
+                    const ClassNameWithoutSysPrefix = context.ClassName.replace(new RegExp(`^${tableNamePrefix}`, 'i'), '')
+                    const ClassNameWithoutSysPrefixAndLowerCaseFirstLetter = StringUtils.uncapitalize(ClassNameWithoutSysPrefix)
                     if(fileName === 'index.vue'){
-                        path = `views/${table.moduleName}/${table.businessName}/index${extension}`
+                        path = `views/${table.moduleName}/${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}/index${extension}`
                     }else if(fileName === 'api.js'){
-                        path = `api/${table.moduleName}/${table.businessName}${extension}`
+                        path = `api/${table.moduleName}/${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}${extension}`
                     }
                 }
-
                 fileList.push({path: path, content: renderedCode})
             }
 
         
        
         }
-
         if(isDownload){
             return fileList
         }
@@ -302,22 +308,19 @@ export class GenTableService {
                 
                 const className = table.className.replace(/([A-Z])/g, '-$1').toLowerCase();
 
+                const mainPath = resolve(process.cwd(),'src/',table.packageName,path)
 
-                if(file.path.endsWith('controller.ts')){
-                    const controllerPath = resolve(process.cwd(),'src/','ruoyi-admin',table.moduleName,className)
+                const absPath = await this.fileUploadUtils.getAbsoluteFile(mainPath, fileName);
+                const writeStream = fs.createWriteStream(absPath);
+                writeStream.write(file.content);
+                writeStream.end();
 
-                    const absPath = await this.fileUploadUtils.getAbsoluteFile(controllerPath, fileName);
-
-                    const writeStream = fs.createWriteStream(absPath);
-                    writeStream.write(file.content);
-                    writeStream.end();
-                }else{
-                    const otherPath = resolve(process.cwd(),'src/',table.packageName,path)
-                    const absPath = await this.fileUploadUtils.getAbsoluteFile(otherPath, fileName);
-                    const writeStream = fs.createWriteStream(absPath);
-                    writeStream.write(file.content);
-                    writeStream.end();
-                }
+            } else if(file.path.endsWith('.js') || file.path.endsWith('.vue')){
+                const frontEndPath = resolve(process.cwd(),'src/','../../ruoyi-ui/src')
+                const absPath = await this.fileUploadUtils.getAbsoluteFile(frontEndPath, file.path);
+                const writeStream = fs.createWriteStream(absPath);
+                writeStream.write(file.content);
+                writeStream.end();
             }
 
         }
