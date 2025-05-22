@@ -60,7 +60,7 @@ export class SysRegisterService {
         } else if (password.length < UserConstants.PASSWORD_MIN_LENGTH
                 || password.length > UserConstants.PASSWORD_MAX_LENGTH) {
             msg = "密码长度必须在5到20个字符之间";
-        } else if (!this.userService.checkUserNameUnique(sysUser)) {
+        } else if (!await this.userService.checkUserNameUnique(sysUser)) {
             msg = "保存用户'" + username + "'失败，注册账号已存在";
         } else {
             sysUser.nickName = username;

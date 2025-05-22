@@ -8,6 +8,6 @@ import { UserException } from './UserException';
  */
 export class CaptchaExpireException extends UserException {
     constructor() {
-        super(MessageUtils.message('user.jcaptcha.expire'), null);
+        super(MessageUtils.message('user.captcha.expire'), null);
     }
 }

@@ -4,7 +4,7 @@
       "null": "* 必须填写"
     },
     "user": {
-      "jcaptcha": {
+      "captcha": {
         "error": "验证码错误",
         "expire": "验证码已失效"
       },

@@ -8,6 +8,6 @@ import { UserException } from './UserException';
  */
 export class CaptchaException extends UserException {
     constructor() {
-        super(MessageUtils.message('user.jcaptcha.error'), null);
+        super(MessageUtils.message('user.captcha.error'), null);
     }
 }
