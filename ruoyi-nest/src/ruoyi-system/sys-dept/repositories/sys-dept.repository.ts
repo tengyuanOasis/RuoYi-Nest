@@ -106,7 +106,7 @@ export class SysDeptRepository {
         .addSelect('parent.dept_name', 'parentName')
         .leftJoin('sys_dept', 'parent', 'd.parentId = parent.deptId')
         .where('d.deptId = :deptId', { deptId })
-        .getRawOne();
+        .getOne();
     }
 
     async checkDeptExistUser(deptId: number): Promise<number> {
