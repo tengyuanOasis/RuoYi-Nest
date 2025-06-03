@@ -107,7 +107,7 @@ export class SysDeptRepository {
         .addSelect('parent.dept_name', 'parentName')
         .leftJoin('sys_dept', 'parent', 'd.parentId = parent.deptId')
         .where('d.deptId = :deptId', { deptId })
-        .getRawOne();
+        .getOne();
     }
 
     async checkDeptExistUser(deptId: number): Promise<number> {
@@ -210,8 +210,13 @@ export class SysDeptRepository {
     }
 
     async deleteDeptById(deptId: number): Promise<number> {
-      const query = `UPDATE sys_dept SET del_flag = '2' WHERE dept_id = ${deptId}`;
-      const result = await this.deptRepository.query(query);
+      const queryBuilder = this.deptRepository.createQueryBuilder('d')
+          .delete()
+          .from(SysDept)
+          .where('deptId = :deptId', { deptId });
+
+      this.sqlLoggerUtils.log(queryBuilder, 'deleteDeptById');
+      const result = await queryBuilder.execute();
       return result.affected;
-    }
+   }
 }

@@ -1,12 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, AfterLoad } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, AfterLoad, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { BaseEntity } from '~/ruoyi-share/entities/base.entity';
 import { IsNotEmpty, IsEmail, Length, IsInt, IsOptional, IsString, IsArray, IsNumber } from 'class-validator';
 import { SysUser } from '~/ruoyi-system/sys-user/entities/sys-user.entity';
 import { Expose } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import * as dayjs from 'dayjs';
 
 @Entity('sys_dept')
-export class SysDept extends BaseEntity {
+export class SysDept {
     @PrimaryGeneratedColumn({
         name: 'dept_id',
         comment: '部门ID'
@@ -124,8 +125,55 @@ export class SysDept extends BaseEntity {
     @Expose()
     parentName: string;
 
-    @Expose()
-    remark: string;
+    @Column({ 
+        name: 'create_by',
+        length: 64, 
+        nullable: true, 
+        comment: '创建者',
+        select: false
+    })
+    createBy?: string;
+
+    @CreateDateColumn({ 
+        name: 'create_time',
+        comment: '创建时间',
+        select: false,
+        transformer: {
+            from(value: string): string {
+                return value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : null;
+            },
+            to(value: Date): Date {
+                return value;
+            },
+        }
+    })
+    createTime?: Date;
+
+    @Column({ 
+        name: 'update_by',
+        length: 64, 
+        nullable: true, 
+        comment: '更新者',
+        select: false
+    })
+    updateBy?: string;
+
+    @UpdateDateColumn({ 
+        name: 'update_time',
+        comment: '更新时间',
+        select: false,
+        transformer: {
+            from(value: string): string {
+                return value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : null;
+            },
+            to(value: Date): Date {
+                return value;
+            },
+        }
+    })
+    updateTime?: Date;
+
+    params?: any;
 
     children: SysDept[] = [];
 
@@ -135,6 +183,5 @@ export class SysDept extends BaseEntity {
     @AfterLoad()
     afterLoad() {
         this.parentName = null
-        this.remark = null
     }
 }
