@@ -150,6 +150,7 @@ export class SysUserRepository {
             );
         }
 
+        query.params.permission = 'system:user:list'
         this.dataScopeUtils.dataScopeFilter(queryBuilder, query.params);
 
         this.sqlLoggerUtils.log(queryBuilder,'selectUserList');
@@ -188,6 +189,7 @@ export class SysUserRepository {
             queryBuilder.andWhere('u.phonenumber LIKE :phonenumber', { phonenumber: `%${query.phonenumber}%` });
         }
 
+        query.params.permission = 'system:role:list'
         this.dataScopeUtils.dataScopeFilter(queryBuilder, query.params);
 
         this.sqlLoggerUtils.log(queryBuilder, 'selectAllocatedList');
@@ -227,6 +229,7 @@ export class SysUserRepository {
             queryBuilder.andWhere('u.phonenumber LIKE :phonenumber', { phonenumber: `%${query.phonenumber}%` });
         }
 
+        query.params.permission = 'system:role:list'
         this.dataScopeUtils.dataScopeFilter(queryBuilder, query.params);
 
         this.sqlLoggerUtils.log(queryBuilder, 'selectUnallocatedList');

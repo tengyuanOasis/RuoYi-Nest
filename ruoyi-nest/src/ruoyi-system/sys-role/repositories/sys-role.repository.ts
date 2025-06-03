@@ -71,12 +71,8 @@ export class SysRoleRepository {
       });
     }
 
-    this.dataScopeUtils.dataScopeFilter(queryBuilder,query.params);
-
-    // Add data scope filter if provided
-    // if (query.params?.dataScope) {
-    //   queryBuilder.andWhere(query.params.dataScope);
-    // }
+    query.params.permission = 'system:role:list'
+    this.dataScopeUtils.dataScopeFilter(queryBuilder, query.params);
 
     queryBuilder.orderBy('r.roleSort', 'ASC');
 
