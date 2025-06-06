@@ -363,8 +363,7 @@ export class SysUserRepository {
             updateTime: new Date()
         };
 
-        // 数字类型只判断 null
-        if (user.deptId !== null) updateData.deptId = user.deptId;
+        if (user.deptId !== null && user.deptId !== 0) updateData.deptId = user.deptId;
         
         // 字符串类型判断 null 和空字符串
         if (user.userName !== null && user.userName !== '') updateData.userName = user.userName;

@@ -120,10 +120,10 @@ export class SysUserController extends BaseController {
     currentUser.sex = user.sex;
 
     if (user.phonenumber && !await this.userService.checkPhoneUnique(currentUser)) {
-      return AjaxResult.error(`修改用户'${loginUser.username}'失败，手机号码已存在`);
+      return AjaxResult.error(`修改用户'${loginUser.getUsername()}'失败，手机号码已存在`);
     }
     if (user.email && !await this.userService.checkEmailUnique(currentUser)) {
-      return AjaxResult.error(`修改用户'${loginUser.username}'失败，邮箱账号已存在`);
+      return AjaxResult.error(`修改用户'${loginUser.getUsername()}'失败，邮箱账号已存在`);
     }
 
     const result = await this.userService.updateUserProfile(currentUser);
