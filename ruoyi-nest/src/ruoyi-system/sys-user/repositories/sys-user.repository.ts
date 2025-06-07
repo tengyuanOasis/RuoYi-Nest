@@ -363,23 +363,23 @@ export class SysUserRepository {
             updateTime: new Date()
         };
 
-        if (user.deptId !== null && user.deptId !== 0) updateData.deptId = user.deptId;
+        if (user.deptId != null && user.deptId !== 0) updateData.deptId = user.deptId;
         
         // 字符串类型判断 null 和空字符串
-        if (user.userName !== null && user.userName !== '') updateData.userName = user.userName;
-        if (user.nickName !== null && user.nickName !== '') updateData.nickName = user.nickName;
-        if (user.email !== null && user.email !== '') updateData.email = user.email;
-        if (user.phonenumber !== null && user.phonenumber !== '') updateData.phonenumber = user.phonenumber;
-        if (user.sex !== null && user.sex !== '') updateData.sex = user.sex;
-        if (user.avatar !== null && user.avatar !== '') updateData.avatar = user.avatar;
-        if (user.password !== null && user.password !== '') updateData.password = user.password;
-        if (user.status !== null && user.status !== '') updateData.status = user.status;
-        if (user.loginIp !== null && user.loginIp !== '') updateData.loginIp = user.loginIp;
-        if (user.updateBy !== null && user.updateBy !== '') updateData.updateBy = user.updateBy;
-        if (user.remark !== null && user.remark !== '') updateData.remark = user.remark;
+        if (user.userName != null && user.userName !== '') updateData.userName = user.userName;
+        if (user.nickName != null && user.nickName !== '') updateData.nickName = user.nickName;
+        if (user.email != null && user.email !== '') updateData.email = user.email;
+        if (user.phonenumber != null && user.phonenumber !== '') updateData.phonenumber = user.phonenumber;
+        if (user.sex != null && user.sex !== '') updateData.sex = user.sex;
+        if (user.avatar != null && user.avatar !== '') updateData.avatar = user.avatar;
+        if (user.password != null && user.password !== '') updateData.password = user.password;
+        if (user.status != null && user.status !== '') updateData.status = user.status;
+        if (user.loginIp != null && user.loginIp !== '') updateData.loginIp = user.loginIp;
+        if (user.updateBy != null && user.updateBy !== '') updateData.updateBy = user.updateBy;
+        if (user.remark != null && user.remark !== '') updateData.remark = user.remark;
         
         // 日期类型只判断 null
-        if (user.loginDate !== null) updateData.loginDate = user.loginDate;
+        if (user.loginDate != null) updateData.loginDate = user.loginDate;
 
         const result = await this.userRepository.update(user.userId, updateData);
         return result.affected;
