@@ -49,6 +49,12 @@ export class SysLoginService {
         // 登录前置校验
         await this.loginPreCheck(username, password, request);
         const sysUser = await this.userService.selectUserByUserName(username);
+
+        if (!sysUser) {
+            this.logUtils.recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.not.exists"));
+            throw new UserNotExistsException();
+        }
+
      
         if(!this.securityUtils.matchesPassword(password, sysUser.password)){
             this.logger.warn(`登录用户：${username} 密码错误.`);

@@ -1,3 +1,5 @@
+import { MessageUtils } from '~/ruoyi-share/utils/message.utils';
+
 import { UserException } from './UserException';
 
 /**
@@ -7,6 +9,6 @@ import { UserException } from './UserException';
  */
 export class UserNotExistsException extends UserException {
     constructor() {
-        super('user.not.exists', null);
+        super(MessageUtils.message("user.not.exists"), null);
     }
 }
