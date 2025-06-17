@@ -7,21 +7,26 @@ import { SysRoleDept } from '~/ruoyi-system/sys-role-dept/entities/sys-role-dept
 import { Brackets, SelectQueryBuilder } from 'typeorm';
 import { SecurityUtils } from './security.utils';
 import { LoginUser } from '../model/login-user';
-
+import { ContextHolderUtils } from './context-holder.utils';
 @Injectable()
 export class DataScopeUtils {
-  constructor(private readonly securityUtils: SecurityUtils) { }
+  constructor(
+    private readonly securityUtils: SecurityUtils,
+    private readonly contextHolderUtils: ContextHolderUtils
+  ) { }
 
   /**
    * 构建数据过滤条件
    */
-  dataScopeFilter(queryBuilder: SelectQueryBuilder<any>, params?: any) {
-    const { deptAlias, userAlias, permission } = params;
+  dataScopeFilter(queryBuilder: SelectQueryBuilder<any>) {
+
+    const permission = this.contextHolderUtils.getContext('permission');
+    const userAlias = this.contextHolderUtils.getContext('userAlias');
+    const deptAlias = this.contextHolderUtils.getContext('deptAlias');
 
     const loginUser = this.securityUtils.getLoginUser();
 
     const user: SysUser = loginUser.user;
-
 
     // 如果是超级管理员则不过滤数据
     if (this.securityUtils.isAdmin(user.userId)) {

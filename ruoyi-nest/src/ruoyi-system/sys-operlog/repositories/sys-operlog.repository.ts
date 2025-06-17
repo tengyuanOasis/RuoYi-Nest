@@ -62,7 +62,6 @@ export class SysOperlogRepository {
             .into(SysOperlog,Object.keys(insertObj))
             .values(insertObj);
 
-        this.sqlLoggerUtils.log(queryBuilder, 'insertOperlog');
         await queryBuilder.execute();
     }
 

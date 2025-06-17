@@ -66,8 +66,7 @@ export class SysDeptRepository {
       queryBuilder.andWhere('d.status = :status', { status: query.status });
     }
 
-    query.params.permission = 'system:dept:list'
-    this.dataScopeUtils.dataScopeFilter(queryBuilder, query.params);
+    this.dataScopeUtils.dataScopeFilter(queryBuilder);
 
     queryBuilder.orderBy('d.parentId', 'ASC')
       .addOrderBy('d.orderNum', 'ASC');

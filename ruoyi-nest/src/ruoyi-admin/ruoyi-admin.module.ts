@@ -25,7 +25,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { RuoYiGeneratorModule } from '~/ruoyi-generator/ruoyi-generator.module'; 
 
 import { DemoModeGuard } from '~/ruoyi-share/guard/demo-mode.guard';
-
+import { GlobalContextMiddleware } from '~/ruoyi-share/middleware/global-context.middleware';
 /**
  * 启动程序
  * 
@@ -117,6 +117,12 @@ import { DemoModeGuard } from '~/ruoyi-share/guard/demo-mode.guard';
 export class RuoYiAdminModule{
   constructor() {}
 
+    // 添加这个方法来配置中间件
+    configure(consumer: MiddlewareConsumer) {
+      consumer
+        .apply(GlobalContextMiddleware)
+        .forRoutes('*'); // 对所有路由生效
+    }
 
   static async bootstrap() {
     console.log(

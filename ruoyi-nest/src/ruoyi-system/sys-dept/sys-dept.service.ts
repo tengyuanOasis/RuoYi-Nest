@@ -26,17 +26,6 @@ export class SysDeptService {
 
   @DataScope({deptAlias: 'd'})
   async selectDeptList(query: SysDept): Promise<[SysDept[], number]> {
-    // // 获取当前方法的元数据
-    // const metadata = Reflect.getMetadata(DATA_SCOPE_KEY, this.selectDeptList);
-    
-    // // 从元数据中获取注解参数
-    // const { deptAlias } = metadata;
-
-    // if(deptAlias){
-    //   // 设置查询参数
-    //   query.deptAlias = deptAlias;
-    // }
-    
     return this.deptRepository.selectDeptList(query);
   }
 

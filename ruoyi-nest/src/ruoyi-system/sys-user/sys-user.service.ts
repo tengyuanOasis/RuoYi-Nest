@@ -44,36 +44,10 @@ export class SysUserService {
         private readonly deptService: SysDeptService,       
         private readonly entityValidatorUtils: EntityValidatorUtils,    
         @InjectDataSource() private dataSource: DataSource,
-        // @InjectRepository(SysRole)
-        // private readonly roleRepository: Repository<SysRole>,
-        // @InjectRepository(SysPost)
-        // private readonly postRepository: Repository<SysPost>,
-        // @InjectRepository(SysUserRole)
-        // private readonly userRoleRepository: Repository<SysUserRole>,
-        // @InjectRepository(SysUserPost)
-        // private readonly userPostRepository: Repository<SysUserPost>,
-        // private readonly configService: ISysConfigService,
-        // private readonly deptService: ISysDeptService,
     ) {}
 
     @DataScope({ deptAlias: 'd', userAlias: 'u' })        
     async selectUserList(query: SysUser): Promise<[SysUser[],number]> {
-        // // 获取当前方法的元数据
-        // const metadata = Reflect.getMetadata(DATA_SCOPE_KEY, this.selectUserList);
-            
-        // // 从元数据中获取注解参数
-        // const { deptAlias ,userAlias} = metadata;
-
-        // if(deptAlias){
-        //     // 设置查询参数
-        //     query.deptAlias = deptAlias;
-        // }
-
-        // if(userAlias){
-        //     query.userAlias = userAlias;
-        // }
-        
-
         return this.userRepository.selectUserList(query);
     }
 

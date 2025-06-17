@@ -23,29 +23,25 @@ export function Transactional() {
       // 保存当前上下文中的所有内容
       const currentContext = contextHolderUtils.getAllContext();
 
-      return contextHolderUtils.runWithContext(async () => {
-        try {
-          // 恢复之前的上下文
-          Object.entries(currentContext).forEach(([key, value]) => {
-            contextHolderUtils.setContext(key, value);
-          });
+      try {
+        // 恢复之前的上下文
+        Object.entries(currentContext).forEach(([key, value]) => {
+          contextHolderUtils.setContext(key, value);
+        });
 
-          // 设置上下文
-          contextHolderUtils.setContext('transactionManager', queryRunner.manager);
+        // 设置上下文
+        contextHolderUtils.setContext('transactionManager', queryRunner.manager);
 
-          // 调用原始方法
-          const result = await originalMethod.apply(this, args);
-          await queryRunner.commitTransaction();
-          return result;
-        } catch (err) {
-          await queryRunner.rollbackTransaction();
-          throw err;
-        } finally {
-          await queryRunner.release();
-          // 清除上下文
-          contextHolderUtils.setContext('transactionManager', null);
-        }
-      });
+        // 调用原始方法
+        const result = await originalMethod.apply(this, args);
+        await queryRunner.commitTransaction();
+        return result;
+      } catch (err) {
+        await queryRunner.rollbackTransaction();
+        throw err;
+      } finally {
+        await queryRunner.release();
+      }
     };
   };
 }

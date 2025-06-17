@@ -7,13 +7,14 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { JwtAuthService } from './jwt-auth-service';
 import { PREAUTHORIZE_KEY } from '~/ruoyi-share/annotation/PreAuthorize';
 import { PermissionValidatorService } from '~/ruoyi-share/permission/permission-validator.service';
-
+import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
 @Injectable()
 export class GlobalAuthGuard extends AuthGuard('jwt') {
   private context: ExecutionContext;
   constructor(
     private jwtAuthService: JwtAuthService, 
     private permissionValidatorService: PermissionValidatorService,
+    private contextHolderUtils: ContextHolderUtils,
     private reflector: Reflector) {
     super();
   }
@@ -94,8 +95,9 @@ export class GlobalAuthGuard extends AuthGuard('jwt') {
 
     if (matches.hasPermi) {
       const [permission] = this.getParams(expression);
-      // const permission = matches.hasPermi[1];
-      // return user.permissions?.includes(permission);
+      if(permission){
+        this.contextHolderUtils.setContext('permission', permission);
+      }
       return this.permissionValidatorService.hasPermi(permission,loginUser);
     }
 

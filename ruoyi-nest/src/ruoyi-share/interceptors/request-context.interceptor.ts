@@ -10,15 +10,7 @@ export class RequestContextInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
-    return this.contextHolderUtils.runWithContext(() => {
-      this.contextHolderUtils.setContext('request', request);
-      return next.handle().pipe(
-        tap({
-          finalize: () => {
-            this.contextHolderUtils.setContext('request', null);
-          }
-        })
-      );
-    });
+    this.contextHolderUtils.setContext('request', request);
+    return next.handle()
   }
 }   
