@@ -17,7 +17,7 @@ export function DataScope(options: { deptAlias?: string; userAlias?: string, per
 
 
         const contextHolderUtils = ContextHolderUtils.getInstance();
-
+        
 
           contextHolderUtils.setContext('params', query.params);
           contextHolderUtils.setContext('deptAlias', options.deptAlias);

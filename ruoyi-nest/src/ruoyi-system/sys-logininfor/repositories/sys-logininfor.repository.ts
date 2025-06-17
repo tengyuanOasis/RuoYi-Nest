@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SysLogininfor } from '../entities/sys-logininfor.entity';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysLogininforRepository {
 
@@ -12,9 +12,13 @@ export class SysLogininforRepository {
         @InjectRepository(SysLogininfor)
         private readonly logininforRepository: Repository<SysLogininfor>,
         private readonly queryUtils: QueryUtils,
-        private readonly sqlLoggerUtils: SqlLoggerUtils
+        private readonly sqlLoggerUtils: SqlLoggerUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
+    /**
+     * 新增登录日志
+     */
     async insertLogininfor(logininfor: SysLogininfor): Promise<void> {
         const insertObj: any = {};
         if (logininfor.userName != null && logininfor.userName != '') insertObj.userName = logininfor.userName;
@@ -26,7 +30,7 @@ export class SysLogininforRepository {
         if (logininfor.msg != null && logininfor.msg != '') insertObj.msg = logininfor.msg;
         insertObj.loginTime = new Date();
 
-        const queryBuilder = this.logininforRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.logininforRepository)
             .insert()
             .into(SysLogininfor,Object.keys(insertObj))
             .values(insertObj);
@@ -36,7 +40,7 @@ export class SysLogininforRepository {
     }
 
     async selectLogininforList(query: SysLogininfor): Promise<[SysLogininfor[], number]> {
-        const queryBuilder = this.logininforRepository.createQueryBuilder('l')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.logininforRepository,'l')
             .select([
                 'l.infoId',
                 'l.userName',
@@ -71,8 +75,11 @@ export class SysLogininforRepository {
         return this.queryUtils.executeQuery(queryBuilder,query);
     }
 
+    /**
+     * 批量删除登录日志
+     */
     async deleteLogininforByIds(infoIds: number[]): Promise<number> {
-        const queryBuilder = this.logininforRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.logininforRepository)
             .delete()
             .where('infoId IN (:...infoIds)', { infoIds });
 
@@ -81,8 +88,11 @@ export class SysLogininforRepository {
         return result.affected;
     }
 
+    /**
+     * 清空登录日志
+     */
     async cleanLogininfor(): Promise<void> {
-        const queryBuilder = this.logininforRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.logininforRepository)
             .delete();
 
         this.sqlLoggerUtils.log(queryBuilder, 'cleanLogininfor');

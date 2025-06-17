@@ -17,7 +17,7 @@ import { SysUserService } from '~/ruoyi-system/sys-user/sys-user.service';
 import { JwtAuthService } from '~/ruoyi-framework/auth/jwt/jwt-auth-service';
 import { SysUser } from '~/ruoyi-system/sys-user/entities/sys-user.entity';
 import { SysUserRole } from '~/ruoyi-system/sys-user-role/entities/sys-user-role.entity';
-
+import { CommaSeparatedIdsPipe } from '~/ruoyi-share/pipe/comma-separated-ids.pipe';
 @ApiTags('角色信息')
 @Controller('system/role')
 export class SysRoleController extends BaseController {
@@ -192,22 +192,27 @@ export class SysRoleController extends BaseController {
     @PreAuthorize('hasPermi("system:role:edit")')
     @Log({ title: '角色管理', businessType: BusinessType.GRANT })
     @Put('authUser/cancelAll')
-    public async cancelAuthUserAll(@Body() roleId:number, @Body() userIds:number[]):Promise<AjaxResult>
+    public async cancelAuthUserAll(
+      @Query('roleId') roleId: number,
+      @Query('userIds', new CommaSeparatedIdsPipe()) userIds: number[]
+    ):Promise<AjaxResult>
     {
         return AjaxResult.success(await this.roleService.deleteAuthUsers(roleId, userIds));
     }
 
-    /**
-     * 批量选择用户授权
-     */
-    @PreAuthorize('hasPermi("system:role:edit")')
-    @Log({ title: '角色管理', businessType: BusinessType.GRANT })
-    @Put('authUser/selectAll')
-    public async selectAuthUserAll(@Body() roleId:number, @Body() userIds:number[]):Promise<AjaxResult>
-    {
-        this.roleService.checkRoleDataScope([roleId]);
-        return AjaxResult.success(await this.roleService.insertAuthUsers(roleId, userIds));
-    }
+  /**
+   * 批量选择用户授权
+   */
+  @PreAuthorize('hasPermi("system:role:edit")')
+  @Log({ title: '角色管理', businessType: BusinessType.GRANT })
+  @Put('authUser/selectAll')
+  public async selectAuthUserAll(
+    @Query('roleId') roleId: number,
+    @Query('userIds', new CommaSeparatedIdsPipe()) userIds: number[]
+  ): Promise<AjaxResult> {
+    this.roleService.checkRoleDataScope([roleId]);
+    return AjaxResult.success(await this.roleService.insertAuthUsers(roleId, userIds));
+  }
 
 
   @PreAuthorize('hasPermi("system:role:query")')

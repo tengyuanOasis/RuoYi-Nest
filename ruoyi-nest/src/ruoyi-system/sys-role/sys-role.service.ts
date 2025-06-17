@@ -31,6 +31,17 @@ export class SysRoleService {
 
   @DataScope({ deptAlias: 'd' })
   async selectRoleList(query: SysRole): Promise<[SysRole[], number]> {
+    // // 获取当前方法的元数据
+    // const metadata = Reflect.getMetadata(DATA_SCOPE_KEY, this.selectRoleList);
+
+    // // 从元数据中获取注解参数
+    // const { deptAlias } = metadata;
+
+    // if(deptAlias){
+    //   // 设置查询参数
+    //   query.deptAlias = deptAlias;
+    // }
+
     return this.roleRepository.selectRoleList(query);
   }
 
@@ -180,6 +191,7 @@ export class SysRoleService {
     await this.roleRepository.updateRole(role);
     // 删除角色与部门关联
     await this.roleDeptRepository.deleteRoleDeptByRoleId(role.roleId);
+
     // 新增角色和部门信息（数据权限）
     return this.insertRoleDept(role);
   }

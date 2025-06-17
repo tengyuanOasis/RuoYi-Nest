@@ -6,7 +6,7 @@ import { DictUtils } from '~/ruoyi-share/utils/dict.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysDictTypeRepository {
     constructor(
@@ -15,12 +15,12 @@ export class SysDictTypeRepository {
         private readonly sqlLoggerUtils: SqlLoggerUtils,
         private readonly contextHolderUtils: ContextHolderUtils,
         private readonly dictUtils: DictUtils,
-        private readonly queryUtils: QueryUtils 
+        private readonly queryUtils: QueryUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
     selectDictTypeVo() {
-        return this.dictTypeRepository
-            .createQueryBuilder('d')
+        return this.queryBuilderUtils.createQueryBuilder(this.dictTypeRepository,'d')
             .select([
                 'd.dictId',
                 'd.dictName',
@@ -81,20 +81,21 @@ export class SysDictTypeRepository {
      * 根据字典类型查询信息
      */
     async selectDictTypeByType(dictType: string): Promise<SysDictType> {
-        const queryBuilder = this.dictTypeRepository.createQueryBuilder('d')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictTypeRepository,'d')
             .where('d.dictType = :dictType', { dictType });
         this.sqlLoggerUtils.log(queryBuilder, 'selectDictTypeByType');
         return queryBuilder.getOne();
     }
 
     /**
-     * 通过字典ID删除字典信息
+     * 通过字典ID删除字典类型信息
      */
     async deleteDictTypeById(dictId: number): Promise<void> {
-        const queryBuilder = this.dictTypeRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictTypeRepository)
             .delete()
             .from(SysDictType)
             .where('dictId = :dictId', { dictId });
+
         this.sqlLoggerUtils.log(queryBuilder, 'deleteDictTypeById');
         await queryBuilder.execute();
     }
@@ -103,33 +104,32 @@ export class SysDictTypeRepository {
      * 批量删除字典类型信息
      */
     async deleteDictTypeByIds(dictIds: number[]): Promise<void> {
-        const queryBuilder = this.dictTypeRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictTypeRepository)
             .delete()
             .from(SysDictType)
             .whereInIds(dictIds);
+
         this.sqlLoggerUtils.log(queryBuilder, 'deleteDictTypeByIds');
         await queryBuilder.execute();
     }
 
     /**
-     * 新增保存字典类型信息
-     * 
-     * @param dict 字典类型信息
-     * @return 结果
+     * 新增字典类型信息
      */
-    async insertDictType(dict: SysDictType): Promise<number> {
-        const insertObject: any = {};
-        if (dict.dictName != null && dict.dictName != '') insertObject.dictName = dict.dictName;
-        if (dict.dictType != null && dict.dictType != '') insertObject.dictType = dict.dictType;
-        if (dict.status != null) insertObject.status = dict.status;
-        if (dict.remark != null && dict.remark != '') insertObject.remark = dict.remark;
-        if (dict.createBy != null && dict.createBy != '') insertObject.createBy = dict.createBy;
-        insertObject.createTime = new Date();
+    async insertDictType(dictType: SysDictType): Promise<number> {
+        const insertObj: any = {};
+        
+        if (dictType.dictName != null && dictType.dictName != '') insertObj.dictName = dictType.dictName;
+        if (dictType.dictType != null && dictType.dictType != '') insertObj.dictType = dictType.dictType;
+        if (dictType.status != null) insertObj.status = dictType.status;
+        if (dictType.remark != null && dictType.remark != '') insertObj.remark = dictType.remark;
+        if (dictType.createBy != null && dictType.createBy != '') insertObj.createBy = dictType.createBy;
+        insertObj.createTime = new Date();
 
-        const queryBuilder = this.dictTypeRepository.createQueryBuilder('d')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictTypeRepository)
             .insert()
             .into(SysDictType)
-            .values(insertObject);
+            .values(insertObj);
 
         this.sqlLoggerUtils.log(queryBuilder, 'insertDictType');
         const result = await queryBuilder.execute();
@@ -158,7 +158,7 @@ export class SysDictTypeRepository {
      * 校验字典类型是否唯一
      */
     async checkDictTypeUnique(dictType: string): Promise<SysDictType> {
-        const queryBuilder = this.dictTypeRepository.createQueryBuilder('d')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictTypeRepository,'d')
             .where('d.dictType = :dictType', { dictType });
         this.sqlLoggerUtils.log(queryBuilder, 'checkDictTypeUnique');
         return queryBuilder.getOne();

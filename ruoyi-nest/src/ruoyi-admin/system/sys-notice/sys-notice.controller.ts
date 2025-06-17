@@ -38,7 +38,7 @@ export class SysNoticeController extends BaseController {
     const loginUser = req.user;
     notice.createBy = loginUser.getUsername();
     const result = await this.noticeService.insertNotice(notice);
-    return this.toAjax(!!result);
+    return this.toAjax(result);
   }
 
   @ApiOperation({ summary: '修改通知公告' })

@@ -4,14 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SysRoleMenu } from '../entities/sys-role-menu.entity';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysRoleMenuRepository {
     constructor(
         @InjectRepository(SysRoleMenu)
         private readonly roleMenuRepository: Repository<SysRoleMenu>,
         private readonly sqlLoggerUtils: SqlLoggerUtils,
-        private readonly contextHolderUtils: ContextHolderUtils
+        private readonly contextHolderUtils: ContextHolderUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
     /**
@@ -21,7 +22,7 @@ export class SysRoleMenuRepository {
      * @return 结果
      */
     async checkMenuExistRole(menuId: number): Promise<number> {
-        const queryBuilder = this.roleMenuRepository.createQueryBuilder('rm')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleMenuRepository,'rm')
             .select('COUNT(1)', 'count')
             .where('rm.menuId = :menuId', { menuId });
 
@@ -37,8 +38,7 @@ export class SysRoleMenuRepository {
      * @return 结果
      */
     async deleteRoleMenuByRoleId(roleId: number): Promise<number> {
-        const entityManager =  this.contextHolderUtils.getContext('transactionManager') || this.roleMenuRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleMenuRepository)
             .delete()
             .from(SysRoleMenu)
             .where('roleId = :roleId', { roleId });
@@ -55,8 +55,7 @@ export class SysRoleMenuRepository {
      * @return 结果
      */
     async deleteRoleMenu(roleIds: number[]): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.roleMenuRepository.manager;
-        const queryBuilder =  entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleMenuRepository)
             .delete()
             .from(SysRoleMenu)
             .where('roleId IN (:...roleIds)', { roleIds });
@@ -73,8 +72,7 @@ export class SysRoleMenuRepository {
      * @return 结果
      */
     async batchRoleMenu(roleMenuList: SysRoleMenu[]): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.roleMenuRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleMenuRepository)
             .insert()
             .into(SysRoleMenu)
             .values(roleMenuList);

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SysConfig } from '../entities/sys-config.entity';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysConfigRepository {
 
@@ -12,11 +12,12 @@ export class SysConfigRepository {
         @InjectRepository(SysConfig)
         private readonly configRepository: Repository<SysConfig>,
         private readonly queryUtils: QueryUtils,
-        private readonly sqlLoggerUtils: SqlLoggerUtils
+        private readonly sqlLoggerUtils: SqlLoggerUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
     private selectConfigVo(): SelectQueryBuilder<SysConfig> {
-        return this.configRepository.createQueryBuilder('c')
+        return this.queryBuilderUtils.createQueryBuilder(this.configRepository,'c')    
             .select([
                 'c.configId',
                 'c.configName', 
@@ -94,7 +95,7 @@ export class SysConfigRepository {
         if (config.remark != null && config.remark != '') insertObj.remark = config.remark;
         insertObj.createTime = new Date();
 
-        const queryBuilder = this.configRepository.createQueryBuilder('c')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.configRepository)
             .insert()
             .into(SysConfig)
             .values(insertObj);

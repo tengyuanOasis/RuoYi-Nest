@@ -32,6 +32,7 @@ import { ScheduleUtils } from './schedule.utils';
 import { SqlUtils } from './sql.utils';
 import { GenUtils } from './gen.utils';
 import { HbsUtils } from './hbs.utils';
+import { QueryBuilderUtils } from './query-builder.utils';
 
 import { GenConfigModule } from '~/ruoyi-generator/gen-config/gen-config.module';
 
@@ -62,7 +63,8 @@ const providers = [
   ScheduleUtils,
   SqlUtils,
   GenUtils,
-  HbsUtils
+  HbsUtils,
+  QueryBuilderUtils
 ];
 
 @Global()

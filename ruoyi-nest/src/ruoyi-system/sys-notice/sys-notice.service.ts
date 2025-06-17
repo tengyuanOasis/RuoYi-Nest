@@ -16,7 +16,7 @@ export class SysNoticeService {
     return this.noticeRepository.selectNoticeList(query);
   }
 
-  async insertNotice(notice: SysNotice): Promise<SysNotice> {  
+  async insertNotice(notice: SysNotice): Promise<number> {  
     return this.noticeRepository.insertNotice(notice);
   }
 

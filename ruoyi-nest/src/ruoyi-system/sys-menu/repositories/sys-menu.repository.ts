@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SysMenu } from '../entities/sys-menu.entity';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysMenuRepository {
    
@@ -13,12 +13,13 @@ export class SysMenuRepository {
         @InjectRepository(SysMenu)
         private readonly menuRepository: Repository<SysMenu>,
         private readonly queryUtils: QueryUtils,
-        private readonly sqlLoggerUtils: SqlLoggerUtils 
+        private readonly sqlLoggerUtils: SqlLoggerUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
 
     private selectMenuVo(){
-        return this.menuRepository.createQueryBuilder('m')
+        return this.queryBuilderUtils.createQueryBuilder(this.menuRepository,'m')
             .select([
                 'm.menuId',
                 'm.menuName',
@@ -79,7 +80,7 @@ export class SysMenuRepository {
      * 根据用户查询系统菜单列表
      */
     async selectMenuListByUserId(query: SysMenu): Promise<SysMenu[]> {
-        const queryBuilder = this.menuRepository.createQueryBuilder('m')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.menuRepository,'m')
             .select([
                 'm.menuId',
                 'm.parentId',
@@ -117,7 +118,7 @@ export class SysMenuRepository {
         queryBuilder.orderBy('m.parentId', 'ASC').addOrderBy('m.orderNum', 'ASC');
 
         this.sqlLoggerUtils.log(queryBuilder, 'selectMenuListByUserId');
-        const [row,total] = await this.queryUtils.executeQuery(queryBuilder, query);
+        const [row,total] = await this.queryUtils.executeQuery(queryBuilder, query);    
         return row
     }
 
@@ -125,7 +126,7 @@ export class SysMenuRepository {
      * 根据角色ID查询权限
      */
     async selectMenuPermsByRoleId(roleId: number): Promise<string[]> {
-        const queryBuilder = this.menuRepository.createQueryBuilder('m')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.menuRepository,'m')
             .select('m.perms')
             .leftJoin('sys_role_menu', 'rm', 'm.menuId = rm.menu_id')
             .distinct(true)
@@ -140,7 +141,7 @@ export class SysMenuRepository {
      * 根据用户ID查询权限
      */
     async selectMenuPermsByUserId(userId: number): Promise<string[]> {
-        const queryBuilder = this.menuRepository.createQueryBuilder('m')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.menuRepository,'m')
             .select('m.perms')
             .leftJoin('sys_role_menu', 'rm', 'm.menuId = rm.menu_id')
             .leftJoin('sys_user_role', 'ur', 'rm.role_id = ur.role_id')
@@ -158,7 +159,7 @@ export class SysMenuRepository {
      * 根据用户ID查询菜单
      */
     async selectMenuTreeAll(): Promise<SysMenu[]> {
-        const queryBuilder = this.menuRepository.createQueryBuilder('m')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.menuRepository,'m')
             .select([
                 'm.menuId',
                 'm.parentId', 
@@ -191,7 +192,7 @@ export class SysMenuRepository {
      * 根据用户ID查询菜单
      */
     async selectMenuTreeByUserId(userId: number): Promise<SysMenu[]> {
-        const queryBuilder = this.menuRepository.createQueryBuilder('m')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.menuRepository,'m')
             .select([
                 'm.menuId',
                 'm.parentId',
@@ -230,7 +231,7 @@ export class SysMenuRepository {
      * 根据角色ID查询菜单树信息
      */
     async selectMenuListByRoleId(roleId: number, menuCheckStrictly: boolean): Promise<number[]> {
-        const queryBuilder = this.menuRepository.createQueryBuilder('m')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.menuRepository,'m')
             .select('m.menuId')
             .leftJoin('sys_role_menu', 'rm', 'm.menuId = rm.menu_id')
             .where('rm.role_id = :roleId', { roleId });
@@ -262,7 +263,7 @@ export class SysMenuRepository {
      * 是否存在菜单子节点
      */
     async hasChildByMenuId(menuId: number): Promise<number> {
-        const result = await this.menuRepository.createQueryBuilder('m')
+        const result = await this.queryBuilderUtils.createQueryBuilder(this.menuRepository,'m')
             .select('COUNT(1)', 'count')
             .where('m.parentId = :menuId', { menuId })
             .getRawOne();
@@ -292,7 +293,7 @@ export class SysMenuRepository {
         if (menu.createBy != null && menu.createBy != '') insertObj.createBy = menu.createBy;
         insertObj.createTime = new Date();
 
-        const queryBuilder = this.menuRepository.createQueryBuilder('m')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.menuRepository)
             .insert()
             .into(SysMenu)
             .values(insertObj);

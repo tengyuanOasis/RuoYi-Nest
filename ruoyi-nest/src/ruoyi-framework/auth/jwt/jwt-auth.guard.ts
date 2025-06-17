@@ -14,8 +14,9 @@ export class GlobalAuthGuard extends AuthGuard('jwt') {
   constructor(
     private jwtAuthService: JwtAuthService, 
     private permissionValidatorService: PermissionValidatorService,
-    private contextHolderUtils: ContextHolderUtils,
-    private reflector: Reflector) {
+    private reflector: Reflector,
+    private contextHolderUtils: ContextHolderUtils
+  ) {
     super();
   }
 
@@ -95,9 +96,12 @@ export class GlobalAuthGuard extends AuthGuard('jwt') {
 
     if (matches.hasPermi) {
       const [permission] = this.getParams(expression);
+      // const permission = matches.hasPermi[1];
+      // return user.permissions?.includes(permission);
       if(permission){
         this.contextHolderUtils.setContext('permission', permission);
       }
+
       return this.permissionValidatorService.hasPermi(permission,loginUser);
     }
 

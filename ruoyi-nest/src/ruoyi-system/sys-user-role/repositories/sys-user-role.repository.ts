@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SysUserRole } from '../entities/sys-user-role.entity';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 
 @Injectable()
 export class SysUserRoleRepository {
@@ -11,16 +12,15 @@ export class SysUserRoleRepository {
         @InjectRepository(SysUserRole)
         private readonly userRoleRepository: Repository<SysUserRole>,
         private readonly sqlLoggerUtils: SqlLoggerUtils,
-        private readonly contextHolderUtils: ContextHolderUtils
+        private readonly contextHolderUtils: ContextHolderUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
-
 
     /**
      * 查询角色列表
      */
     selectRoleVo() {
-        return this.userRoleRepository
-            .createQueryBuilder('ur')
+        return this.queryBuilderUtils.createQueryBuilder(this.userRoleRepository,'ur')
             .leftJoin('sys_role', 'r', 'ur.role_id = r.role_id')
             .leftJoin('sys_user', 'u', 'u.user_id = ur.user_id')
             .leftJoin('sys_dept', 'd', 'u.dept_id = d.dept_id')
@@ -43,7 +43,7 @@ export class SysUserRoleRepository {
      * 通过用户ID删除用户和角色关联
      */
     async deleteUserRoleByUserId(userId: number): Promise<number> {
-        const queryBuilder = this.userRoleRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRoleRepository)
             .delete()
             .from(SysUserRole)
             .where('userId = :userId', { userId });
@@ -57,8 +57,7 @@ export class SysUserRoleRepository {
      * 批量删除用户和角色关联
      */
     async deleteUserRole(userIds: number[]): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.userRoleRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRoleRepository)
             .delete()
             .from(SysUserRole)
             .where('userId IN (:...userIds)', { userIds });
@@ -72,7 +71,7 @@ export class SysUserRoleRepository {
      * 通过角色ID查询角色使用数量
      */
     async countUserRoleByRoleId(roleId: number): Promise<number> {
-        const queryBuilder = this.userRoleRepository.createQueryBuilder('ur')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRoleRepository,'ur')
             .where('ur.roleId = :roleId', { roleId });
 
         this.sqlLoggerUtils.log(queryBuilder, 'countUserRoleByRoleId');
@@ -83,8 +82,7 @@ export class SysUserRoleRepository {
      * 批量新增用户角色信息
      */
     async batchUserRole(userRoleList: SysUserRole[]): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.userRoleRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRoleRepository)
             .insert()
             .into(SysUserRole)
             .values(userRoleList);
@@ -98,7 +96,7 @@ export class SysUserRoleRepository {
      * 删除用户和角色关联信息
      */
     async deleteUserRoleInfo(userRole: SysUserRole): Promise<number> {
-        const queryBuilder = this.userRoleRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRoleRepository)
             .delete()
             .from(SysUserRole)
             .where('userId = :userId', { userId: userRole.userId })
@@ -113,7 +111,7 @@ export class SysUserRoleRepository {
      * 批量取消授权用户角色
      */
     async deleteUserRoleInfos(roleId: number, userIds: number[]): Promise<number> {
-        const queryBuilder = this.userRoleRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRoleRepository)
             .delete()
             .from(SysUserRole)
             .where('roleId = :roleId', { roleId })
@@ -123,9 +121,4 @@ export class SysUserRoleRepository {
         const result = await queryBuilder.execute();
         return result.affected;
     }
-
-
-
-
-    
 }

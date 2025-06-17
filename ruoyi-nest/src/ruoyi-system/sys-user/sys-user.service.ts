@@ -3,17 +3,6 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { Logger } from '@nestjs/common';
 import { SysUser } from '~/ruoyi-system/sys-user/entities/sys-user.entity';
-// import { DataScope } from '~/ruoyi-share/decorators/data-scope.decorator';
-// import { ServiceException } from '~/ruoyi-share/exceptions/service.exception';
-// import { SecurityUtils } from '~/ruoyi-share/utils/security.utils';
-// import { StringUtils } from '~/ruoyi-share/utils/string.utils';
-// import { UserConstants } from '~/ruoyi-share/constants/user.constants';
-// import { SysRole } from '~/ruoyi-system/sys-role/entities/sys-role.entity';
-// import { SysPost } from '~/ruoyi-system/sys-post/entities/sys-post.entity';
-// import { SysUserRole } from '~/ruoyi-system/sys-user-role/entities/sys-user-role.entity';
-// import { SysUserPost } from '~/ruoyi-system/sys-user-post/entities/sys-user-post.entity';
-// import { ISysConfigService } from '~/ruoyi-system/sys-config/sys-config.service';
-// import { ISysDeptService } from '~/ruoyi-system/sys-dept/sys-dept.service';
 import { SysUserRepository } from '~/ruoyi-system/sys-user/repositories/sys-user.repository';
 import { SecurityUtils } from '~/ruoyi-share/utils/security.utils';
 import { ServiceException } from '~/ruoyi-share/exception/ServiceException';
@@ -27,8 +16,8 @@ import { SysRoleRepository } from '~/ruoyi-system/sys-role/repositories/sys-role
 import { SysConfigService } from '~/ruoyi-system/sys-config/sys-config.service';
 import { EntityValidatorUtils } from '~/ruoyi-share/utils/entity-validator.utils';
 import { SysDeptService } from '~/ruoyi-system/sys-dept/sys-dept.service';
-
-
+import { SysUserTenantRepository } from '~/ruoyi-system/sys-user-tenant/repositories/sys-user-tenant.repository';
+import { Transactional } from '~/ruoyi-share/annotation/Transactional';
 @Injectable()
 export class SysUserService {
     private readonly logger = new Logger(SysUserService.name);
@@ -38,6 +27,7 @@ export class SysUserService {
         private readonly userRoleRepository: SysUserRoleRepository,
         private readonly userPostRepository: SysUserPostRepository,
         private readonly postRepository: SysPostRepository, 
+        private readonly userTenantRepository: SysUserTenantRepository,
         private readonly securityUtils: SecurityUtils,
         private readonly roleRepository: SysRoleRepository,
         private readonly configService: SysConfigService,      
@@ -149,7 +139,7 @@ export class SysUserService {
         }
     }
 
-    async checkUserDataScope(userId: number,loginUser?: LoginUser): Promise<void> {
+    async checkUserDataScope(userId: number): Promise<void> {
         if (!this.securityUtils.isAdmin(userId)) {           
             const query = new SysUser();
             query.userId = userId;
@@ -166,27 +156,17 @@ export class SysUserService {
      * @param user 用户信息
      * @return 结果
      */
+    @Transactional()
     async insertUser(user: SysUser): Promise<number> {
-        const queryRunner = this.dataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
-        try {
-            // 新增用户信息
-            const userId = await this.userRepository.insertUser(user);
-            user.userId = userId;
-            // 新增用户岗位关联
-            await this.insertUserPost(user);
-            // 新增用户与角色管理
-            await this.insertUserRole(user);
+        // 新增用户信息
+        const userId = await this.userRepository.insertUser(user);
+        user.userId = userId;
+        // 新增用户岗位关联
+        await this.insertUserPost(user);
+        // 新增用户与角色管理
+        await this.insertUserRole(user);
 
-            await queryRunner.commitTransaction();
-            return userId;
-        } catch (err) {
-            await queryRunner.rollbackTransaction();
-            throw err;
-        } finally {
-            await queryRunner.release();
-        }
+        return userId;
     }
 
     async registerUser(user: SysUser): Promise<boolean> {  
@@ -200,6 +180,7 @@ export class SysUserService {
      * @param user 用户信息
      * @return 结果
      */
+    @Transactional()
     async updateUser(user: SysUser): Promise<number> {
         const userId = user.userId;
         // 删除用户与角色关联
@@ -219,9 +200,16 @@ export class SysUserService {
      * @param userId 用户ID
      * @param roleIds 角色组
      */
+    @Transactional()
     async insertUserAuth(userId: number, roleIds: number[]): Promise<void> {
         await this.userRoleRepository.deleteUserRoleByUserId(userId);
         await this.insertUserRoles(userId, roleIds);
+    }
+
+    // 用户加入到租户
+    async insertUserTenant(userId: number, tenantIds: number[]): Promise<void> {
+        await this.userTenantRepository.deleteUserTenantByUserId(userId);
+        await this.insertUserTenants(userId, tenantIds);
     }
 
     /**
@@ -271,43 +259,34 @@ export class SysUserService {
         return await this.userRepository.resetUserPwd(user);
     }
 
-    // async deleteUserById(userId: number): Promise<number> {
-    //     await this.userRoleRepository.delete({ userId });
-    //     await this.userPostRepository.delete({ userId });
-    //     const result = await this.userRepository.delete(userId);
-    //     return result.affected;
-    // }
-    async deleteUserByIds(userIds: number[],loginUser?: LoginUser): Promise<number> {
+    @Transactional()
+    async deleteUserById(userId: number): Promise<boolean> {
+        await this.userRoleRepository.deleteUserRoleByUserId(userId);
+        await this.userPostRepository.deleteUserPostByUserId(userId);
+        const result = await this.userRepository.deleteUserById(userId);
+        return result;
+    }
+
+    @Transactional()
+    async deleteUserByIds(userIds: number[]): Promise<number> {
         // 校验用户权限
         for (const userId of userIds) {
             const user = new SysUser();
             user.userId = userId;
             await this.checkUserAllowed(user);
-            await this.checkUserDataScope(userId,loginUser);
+            await this.checkUserDataScope(userId);
         }
+        // 删除用户与角色关联
+        await this.userRoleRepository.deleteUserRole(userIds);
 
-        const queryRunner = this.dataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
+        // 删除用户与岗位关联
+        await this.userPostRepository.deleteUserPost(userIds);
 
-        try {
-            // 删除用户与角色关联
-            await this.userRoleRepository.deleteUserRole(userIds);
-            
-            // 删除用户与岗位关联
-            await this.userPostRepository.deleteUserPost(userIds);
-            
-            // 删除用户
-            const result = await this.userRepository.deleteUserByIds(userIds);
+        // 删除用户
+        const result = await this.userRepository.deleteUserByIds(userIds);
 
-            await queryRunner.commitTransaction();
-            return result;
-        } catch (err) {
-            await queryRunner.rollbackTransaction();
-            throw err;
-        } finally {
-            await queryRunner.release();
-        }
+
+        return result;
     }
     /**
      * 导入用户数据
@@ -391,6 +370,18 @@ export class SysUserService {
                 roleId
             }));
             await this.userRoleRepository.batchUserRole(userRoles);
+        }
+    }
+
+    // 新增用户租户信息
+    private async insertUserTenants(userId: number, tenantIds: number[]): Promise<void> {
+        if (tenantIds && tenantIds.length > 0) {
+            // 新增用户与租户管理   
+            const userTenants = tenantIds.map(tenantId => ({
+                userId,
+                tenantId
+            }));
+            await this.userTenantRepository.batchUserTenant(userTenants);
         }
     }
 

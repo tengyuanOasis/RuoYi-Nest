@@ -11,6 +11,7 @@ import { UserConstants } from '~/ruoyi-share/constant/UserConstants';
 import { DataScopeUtils } from '~/ruoyi-share/utils/data-scope.utils';
 import { LoginUser } from '~/ruoyi-share/model/login-user';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable() 
 export class SysDeptRepository {
 
@@ -23,11 +24,12 @@ export class SysDeptRepository {
     private readonly roleDeptRepository: SysRoleDeptRepository,
     private readonly queryUtils: QueryUtils,
     private readonly dataScopeUtils: DataScopeUtils,
-    private readonly sqlLoggerUtils: SqlLoggerUtils
+    private readonly sqlLoggerUtils: SqlLoggerUtils,
+    private readonly queryBuilderUtils: QueryBuilderUtils
   ) { }
 
   private selectDeptVo(): SelectQueryBuilder<SysDept> {
-    return this.deptRepository.createQueryBuilder('d')
+    return this.queryBuilderUtils.createQueryBuilder(this.deptRepository,'d')  
       .select([
         'd.deptId', 
         'd.parentId', 
@@ -76,7 +78,7 @@ export class SysDeptRepository {
   }
 
     async selectDeptListByRoleId(roleId: number, deptCheckStrictly: boolean): Promise<number[]> {
-      const queryBuilder = this.deptRepository.createQueryBuilder('d')
+      const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.deptRepository,'d')  
         .select('d.deptId')
         .leftJoin('sys_role_dept', 'rd', 'd.deptId = rd.dept_id')
         .where('rd.role_id = :roleId', { roleId });
@@ -98,7 +100,7 @@ export class SysDeptRepository {
     }
 
     async selectDeptById(deptId: number): Promise<SysDept> {
-      return this.deptRepository.createQueryBuilder('d')
+      return this.queryBuilderUtils.createQueryBuilder(this.deptRepository,'d')
         .select([
           'd.deptId', 'd.parentId', 'd.ancestors', 'd.deptName', 'd.orderNum',
           'd.leader', 'd.phone', 'd.email', 'd.status'
@@ -110,7 +112,7 @@ export class SysDeptRepository {
     }
 
     async checkDeptExistUser(deptId: number): Promise<number> {
-      return this.userRepository.createQueryBuilder('u')
+      return this.queryBuilderUtils.createQueryBuilder(this.userRepository,'u')
         .select('COUNT(*)')
         .where('u.dept_id = :deptId', { deptId })
         .andWhere('u.del_flag = :delFlag', { delFlag: '0' })
@@ -119,7 +121,7 @@ export class SysDeptRepository {
     }
 
     async hasChildByDeptId(deptId: number): Promise<number> {
-      return this.deptRepository.createQueryBuilder('d')
+      return this.queryBuilderUtils.createQueryBuilder(this.deptRepository,'d')
         .select('COUNT(*)')
         .where('d.parentId = :deptId', { deptId })
         .andWhere('d.delFlag = :delFlag', { delFlag: '0' })
@@ -128,13 +130,13 @@ export class SysDeptRepository {
     }
 
     async selectChildrenDeptById(deptId: number): Promise<SysDept[]> {
-      return this.deptRepository.createQueryBuilder('d')
+      return this.queryBuilderUtils.createQueryBuilder(this.deptRepository,'d')
         .select('*')
         .where('FIND_IN_SET(:deptId, d.ancestors)', { deptId })
         .getMany();
     }
     async selectNormalChildrenDeptById(deptId: number): Promise<number> {
-      return this.deptRepository.createQueryBuilder('d')
+      return this.queryBuilderUtils.createQueryBuilder(this.deptRepository,'d')
         .select('COUNT(*)')
         .where('d.status = :status', { status: '0' })
         .andWhere('d.delFlag = :delFlag', { delFlag: '0' })
@@ -152,24 +154,29 @@ export class SysDeptRepository {
         .getOne();
     }
 
+    /**
+     * 新增部门信息
+     */
     async insertDept(dept: SysDept): Promise<number> {
-        const insertObj: any = {};
-        if (dept.deptId != null && dept.deptId != 0) insertObj.deptId = dept.deptId;
-        if (dept.parentId != null && dept.parentId != 0) insertObj.parentId = dept.parentId;
-        if (dept.deptName != null && dept.deptName != '') insertObj.deptName = dept.deptName;
-        if (dept.ancestors != null && dept.ancestors != '') insertObj.ancestors = dept.ancestors;
-        if (dept.orderNum != null) insertObj.orderNum = dept.orderNum;
-        if (dept.leader != null && dept.leader != '') insertObj.leader = dept.leader;
-        if (dept.phone != null && dept.phone != '') insertObj.phone = dept.phone;
-        if (dept.email != null && dept.email != '') insertObj.email = dept.email;
-        if (dept.status != null) insertObj.status = dept.status;
-        if (dept.createBy != null && dept.createBy != '') insertObj.createBy = dept.createBy;
-        insertObj.createTime = new Date();
+        const insertData: any = {
+            createTime: new Date()
+        };
 
-        const queryBuilder = this.deptRepository.createQueryBuilder('d')
+        if (dept.deptId != null && dept.deptId != 0) insertData.deptId = dept.deptId;
+        if (dept.parentId != null && dept.parentId != 0) insertData.parentId = dept.parentId;
+        if (dept.deptName != null && dept.deptName != '') insertData.deptName = dept.deptName;
+        if (dept.ancestors != null && dept.ancestors != '') insertData.ancestors = dept.ancestors;
+        if (dept.orderNum != null) insertData.orderNum = dept.orderNum;
+        if (dept.leader != null && dept.leader != '') insertData.leader = dept.leader;
+        if (dept.phone != null && dept.phone != '') insertData.phone = dept.phone;
+        if (dept.email != null && dept.email != '') insertData.email = dept.email;
+        if (dept.status != null) insertData.status = dept.status;
+        if (dept.createBy != null && dept.createBy != '') insertData.createBy = dept.createBy;
+
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.deptRepository)
             .insert()
             .into(SysDept)
-            .values(insertObj);
+            .values(insertData);
 
         this.sqlLoggerUtils.log(queryBuilder, 'insertDept');
         const result = await queryBuilder.execute();
@@ -208,14 +215,17 @@ export class SysDeptRepository {
       await this.deptRepository.query(query);
     }
 
+    /**
+     * 删除部门管理信息
+     */
     async deleteDeptById(deptId: number): Promise<number> {
-      const queryBuilder = this.deptRepository.createQueryBuilder('d')
-          .delete()
-          .from(SysDept)
-          .where('deptId = :deptId', { deptId });
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.deptRepository)
+            .delete()
+            .from(SysDept)
+            .where('deptId = :deptId', { deptId });
 
-      this.sqlLoggerUtils.log(queryBuilder, 'deleteDeptById');
-      const result = await queryBuilder.execute();
-      return result.affected;
-   }
+        this.sqlLoggerUtils.log(queryBuilder, 'deleteDeptById');
+        const result = await queryBuilder.execute();
+        return result.affected;
+    }
 }

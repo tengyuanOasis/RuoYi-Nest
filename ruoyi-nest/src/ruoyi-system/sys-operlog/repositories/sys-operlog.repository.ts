@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SysOperlog } from '../entities/sys-operlog.entity';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysOperlogRepository {
 
@@ -12,11 +12,12 @@ export class SysOperlogRepository {
         @InjectRepository(SysOperlog)
         private readonly operLogRepository: Repository<SysOperlog>,
         private readonly queryUtils: QueryUtils,
-        private readonly sqlLoggerUtils: SqlLoggerUtils
+        private readonly sqlLoggerUtils: SqlLoggerUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
     private selectOperLogVo(): SelectQueryBuilder<SysOperlog> {
-        return this.operLogRepository.createQueryBuilder('o')
+        return this.queryBuilderUtils.createQueryBuilder(this.operLogRepository,'o')
             .select([
                 'o.operId',
                 'o.title', 
@@ -38,6 +39,9 @@ export class SysOperlogRepository {
             ]);
     }
 
+    /**
+     * 新增操作日志
+     */
     async insertOperlog(operLog: SysOperlog): Promise<void> {
         const insertObj: any = {};
         if (operLog.title != null && operLog.title != '') insertObj.title = operLog.title;
@@ -57,11 +61,12 @@ export class SysOperlogRepository {
         if (operLog.costTime != null) insertObj.costTime = operLog.costTime;
         insertObj.operTime = new Date();
 
-        const queryBuilder = this.operLogRepository.createQueryBuilder('o')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.operLogRepository)
             .insert()
             .into(SysOperlog,Object.keys(insertObj))
             .values(insertObj);
 
+        // this.sqlLoggerUtils.log(queryBuilder, 'insertOperlog');
         await queryBuilder.execute();
     }
 
@@ -97,8 +102,14 @@ export class SysOperlogRepository {
         return this.queryUtils.executeQuery(queryBuilder,operLog);
     }
 
+    /**
+     * 批量删除操作日志
+     */
     async deleteOperLogByIds(operIds: number[]): Promise<number> {
-        const result = await this.operLogRepository.delete(operIds);
+        const result = await this.queryBuilderUtils.createQueryBuilder(this.operLogRepository)
+            .delete()
+            .where('operId IN (:...operIds)', { operIds })
+            .execute();
         return result.affected;
     }
 

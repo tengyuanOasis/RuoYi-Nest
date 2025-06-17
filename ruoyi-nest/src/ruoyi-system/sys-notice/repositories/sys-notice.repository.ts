@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SysNotice } from '../entities/sys-notice.entity';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysNoticeRepository {
 
@@ -12,11 +12,12 @@ export class SysNoticeRepository {
         @InjectRepository(SysNotice)
         private readonly noticeRepository: Repository<SysNotice>,
         private readonly queryUtils: QueryUtils,
-        private readonly sqlLoggerUtils: SqlLoggerUtils
+        private readonly sqlLoggerUtils: SqlLoggerUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
     private selectNoticeVo(): SelectQueryBuilder<SysNotice> {
-        return this.noticeRepository.createQueryBuilder('n')
+        return this.queryBuilderUtils.createQueryBuilder(this.noticeRepository,'n')
             .select([
                 'n.noticeId',
                 'n.noticeTitle', 
@@ -35,7 +36,7 @@ export class SysNoticeRepository {
      * 查询公告信息
      */
     async selectNoticeById(noticeId: number): Promise<SysNotice> {
-        const queryBuilder = this.selectNoticeVo()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.noticeRepository,'n')
             .where('n.noticeId = :noticeId', { noticeId });
 
         this.sqlLoggerUtils.log(queryBuilder, 'selectNoticeById');
@@ -65,9 +66,9 @@ export class SysNoticeRepository {
     }
 
     /**
-     * 新增公告
+     * 新增公告信息
      */
-    async insertNotice(notice: SysNotice): Promise<SysNotice> {
+    async insertNotice(notice: SysNotice): Promise<number> {
         const insertObj: any = {};
         if (notice.noticeTitle) insertObj.noticeTitle = notice.noticeTitle;
         if (notice.noticeType) insertObj.noticeType = notice.noticeType;
@@ -77,21 +78,18 @@ export class SysNoticeRepository {
         if (notice.createBy) insertObj.createBy = notice.createBy;
         insertObj.createTime = new Date();
 
-        const queryBuilder = this.noticeRepository.createQueryBuilder('n')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.noticeRepository)
             .insert()
             .into(SysNotice)
             .values(insertObj);
 
         this.sqlLoggerUtils.log(queryBuilder, 'insertNotice');
         const result = await queryBuilder.execute();
-        return this.noticeRepository.create({
-            ...notice,
-            noticeId: result.identifiers[0].noticeId
-        });
+        return result.identifiers[0].noticeId;
     }
 
     /**
-     * 修改公告
+     * 修改公告信息
      */
     async updateNotice(notice: SysNotice): Promise<boolean> {
         const updateData: any = {
@@ -105,7 +103,7 @@ export class SysNoticeRepository {
         if (notice.remark) updateData.remark = notice.remark;
         if (notice.updateBy) updateData.updateBy = notice.updateBy;
 
-        const queryBuilder = this.noticeRepository.createQueryBuilder('n')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.noticeRepository)
             .update(SysNotice)
             .set(updateData)
             .where('noticeId = :noticeId', { noticeId: notice.noticeId });
@@ -119,7 +117,7 @@ export class SysNoticeRepository {
      * 删除公告信息
      */
     async deleteNoticeById(noticeId: number): Promise<boolean> {
-        const queryBuilder = this.noticeRepository.createQueryBuilder('n')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.noticeRepository)
             .delete()
             .from(SysNotice)
             .where('noticeId = :noticeId', { noticeId });
@@ -133,7 +131,7 @@ export class SysNoticeRepository {
      * 批量删除公告信息
      */
     async deleteNoticeByIds(noticeIds: number[]): Promise<boolean> {
-        const queryBuilder = this.noticeRepository.createQueryBuilder('n')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.noticeRepository)
             .delete()
             .from(SysNotice)
             .whereInIds(noticeIds);

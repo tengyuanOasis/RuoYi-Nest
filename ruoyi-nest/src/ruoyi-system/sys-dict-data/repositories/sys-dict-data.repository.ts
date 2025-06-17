@@ -5,7 +5,7 @@ import { SysDictData } from '~/ruoyi-system/sys-dict-data/entities/sys-dict-data
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysDictDataRepository {
     constructor(
@@ -13,14 +13,15 @@ export class SysDictDataRepository {
         private readonly dictDataRepository: Repository<SysDictData>,
         private readonly sqlLoggerUtils: SqlLoggerUtils,
         private readonly contextHolderUtils: ContextHolderUtils,
-        private readonly queryUtils: QueryUtils
+        private readonly queryUtils: QueryUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
     /**
      * 根据条件分页查询字典数据
      */
     async selectDictDataList(dictData: SysDictData): Promise<[SysDictData[], number]> {
-        const queryBuilder = this.dictDataRepository.createQueryBuilder('d')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository,'d')
 
         if (dictData.dictType) {
             queryBuilder.andWhere('d.dictType = :dictType', { dictType: dictData.dictType });
@@ -37,8 +38,7 @@ export class SysDictDataRepository {
         return this.queryUtils.executeQuery(queryBuilder, dictData);
     }
     selectDictDataVo() {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.dictDataRepository.manager;
-        return entityManager.createQueryBuilder(SysDictData, 'd')
+        return this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository,'d')
             .select([
                 'd.dictCode',
                 'd.dictSort',
@@ -74,7 +74,7 @@ export class SysDictDataRepository {
      * 根据字典类型和字典键值查询字典数据信息
      */
     async selectDictLabel(dictType: string, dictValue: string): Promise<string> {
-        const queryBuilder = this.dictDataRepository.createQueryBuilder('d')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository,'d')
             .select('d.dictLabel')
             .where('d.dictType = :dictType', { dictType })
             .andWhere('d.dictValue = :dictValue', { dictValue });
@@ -88,7 +88,7 @@ export class SysDictDataRepository {
      * 根据字典数据ID查询信息
      */
     async selectDictDataById(dictCode: number): Promise<SysDictData> {
-        const queryBuilder = this.dictDataRepository.createQueryBuilder('d')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository,'d')
             .where('d.dictCode = :dictCode', { dictCode });
 
         this.sqlLoggerUtils.log(queryBuilder, 'selectDictDataById');
@@ -99,7 +99,7 @@ export class SysDictDataRepository {
      * 查询字典数据
      */
     async countDictDataByType(dictType: string): Promise<number> {
-        const queryBuilder = this.dictDataRepository.createQueryBuilder('d')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository,'d')
             .where('d.dictType = :dictType', { dictType });
 
         this.sqlLoggerUtils.log(queryBuilder, 'countDictDataByType');
@@ -110,7 +110,7 @@ export class SysDictDataRepository {
      * 通过字典ID删除字典数据信息
      */
     async deleteDictDataById(dictCode: number): Promise<void> {
-        const queryBuilder = this.dictDataRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository)
             .delete()
             .from(SysDictData)
             .where('dictCode = :dictCode', { dictCode });
@@ -123,7 +123,7 @@ export class SysDictDataRepository {
      * 批量删除字典数据信息
      */
     async deleteDictDataByIds(dictCodes: number[]): Promise<void> {
-        const queryBuilder = this.dictDataRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository)
             .delete()
             .from(SysDictData)
             .whereInIds(dictCodes);
@@ -149,7 +149,7 @@ export class SysDictDataRepository {
         if (dictData.createBy != null && dictData.createBy != '') insertObject.createBy = dictData.createBy;
         insertObject.createTime = new Date();
 
-        const queryBuilder = this.dictDataRepository.createQueryBuilder('d')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository)
             .insert()
             .into(SysDictData)
             .values(insertObject);
@@ -178,7 +178,7 @@ export class SysDictDataRepository {
         if (dictData.remark != null) updateData.remark = dictData.remark;
         if (dictData.updateBy != null && dictData.updateBy != '') updateData.updateBy = dictData.updateBy;
 
-        const queryBuilder = this.dictDataRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository)
             .update(SysDictData)
             .set(updateData)
             .where('dictCode = :dictCode', { dictCode: dictData.dictCode });
@@ -192,8 +192,7 @@ export class SysDictDataRepository {
      * 同步修改字典类型
      */
     async updateDictDataType(oldDictType: string, newDictType: string): Promise<void> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.dictDataRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.dictDataRepository)
             .update(SysDictData)
             .set({ dictType: newDictType })
             .where('dictType = :oldDictType', { oldDictType });

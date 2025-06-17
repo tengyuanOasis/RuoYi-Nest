@@ -3,15 +3,19 @@ import { NestMiddleware } from "@nestjs/common";
 import { NextFunction, Request, Response, } from "express";
 import { ContextHolderUtils } from "../utils/context-holder.utils";
 import { Injectable } from "@nestjs/common";
+import { DataSource } from "typeorm";
 
 // 1. 创建全局上下文中间件
 @Injectable()
 export class GlobalContextMiddleware implements NestMiddleware {
-  constructor(private readonly contextHolderUtils: ContextHolderUtils) { }
+  constructor(private readonly contextHolderUtils: ContextHolderUtils, private readonly dataSource: DataSource ) { }
 
   use(req: Request, res: Response, next: NextFunction): void {
     // 在中间件层面创建上下文，整个请求生命周期共享
     this.contextHolderUtils.runWithContext(() => {
+      this.contextHolderUtils.setContext('dataSource', this.dataSource);
+      const requestId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      this.contextHolderUtils.setContext('requestId', requestId);
       const startTime = Date.now();
       // 监听响应完成事件
       const cleanup = () => {

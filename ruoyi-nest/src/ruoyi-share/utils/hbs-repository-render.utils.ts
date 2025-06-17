@@ -16,6 +16,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ${context.ClassName} } from '~/${context.packageName}/${tableNameWithMiddleLine}/entities/${tableNameWithMiddleLine}.entity';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 
 /**
  * ${context.functionName}Repository接口
@@ -38,7 +39,8 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
         @InjectRepository(${context.ClassName})
         private readonly ${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Repository: Repository<${context.ClassName}>,
         private readonly queryUtils: QueryUtils,
-        private readonly sqlLoggerUtils: SqlLoggerUtils
+        private readonly sqlLoggerUtils: SqlLoggerUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
         `
     }
@@ -51,7 +53,7 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
         const indent = ' '.repeat(16);  // 16个空格的缩进     
         return `
     private select${ClassNameWithoutSysPrefix}Vo(): SelectQueryBuilder<${context.ClassName}> {
-        return this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Repository.createQueryBuilder('${alias}')
+        return this.queryBuilderUtils.createQueryBuilder(this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Repository,'${alias}')
             .select([
                 ${
                     context.columns.map((column,index) => {
@@ -144,7 +146,7 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
         }`
         }).join('\n')
         }
-        const queryBuilder = this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Repository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Repository)
             .insert()
             .into(${context.ClassName},Object.keys(insertObj))
             .values(insertObj);
@@ -182,7 +184,7 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
         }`
         }).join('\n')
         }
-        const queryBuilder = this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Repository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Repository)
             .update(${context.ClassName})
             .set(updateData)
             .where('${context.pkColumn.tsField} = :${context.pkColumn.tsField}', { ${context.pkColumn.tsField}: ${context.className}.${context.pkColumn.tsField} });
@@ -204,7 +206,7 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
      * 删除${context.ClassName}信息
      */
     async delete${ClassNameWithoutSysPrefix}ByIds(${context.pkColumn.tsField}s: number[]): Promise<boolean> {
-        const queryBuilder = this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Repository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.${ClassNameWithoutSysPrefixAndLowerCaseFirstLetter}Repository)
             .delete()
             .from(${context.ClassName})
             .whereInIds(${context.pkColumn.tsField}s);

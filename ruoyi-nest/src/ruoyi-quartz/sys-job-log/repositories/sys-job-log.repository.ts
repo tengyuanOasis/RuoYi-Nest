@@ -9,7 +9,7 @@ import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { SecurityUtils } from '~/ruoyi-share/utils/security.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
 import { SysJobLog } from '~/ruoyi-quartz/sys-job-log/entities/sys-job-log.entity';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysJobLogRepository {
 
@@ -20,14 +20,14 @@ export class SysJobLogRepository {
         private readonly dataScopeUtils: DataScopeUtils,
         private readonly sqlLoggerUtils: SqlLoggerUtils,    
         private readonly securityUtils: SecurityUtils,
-        private readonly contextHolderUtils: ContextHolderUtils
+        private readonly contextHolderUtils: ContextHolderUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
 
 
     selectJobLogVo() {
-        return this.jobLogRepository
-            .createQueryBuilder('jobLog')
+        return this.queryBuilderUtils.createQueryBuilder(this.jobLogRepository,'jobLog')
             .select([
                 'jobLog.jobLogId',
                 'jobLog.jobName',
@@ -84,7 +84,7 @@ export class SysJobLogRepository {
     }
 
     async deleteJobLogById(jobLogId: number): Promise<number> {
-        const queryBuilder = this.jobLogRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.jobLogRepository) 
             .delete()
             .from(SysJobLog)
             .where('jobLogId = :jobLogId', { jobLogId });
@@ -96,7 +96,7 @@ export class SysJobLogRepository {
     }
 
     async deleteJobLogByIds(jobLogIds: number[]): Promise<number> {
-        const queryBuilder = this.jobLogRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.jobLogRepository)
             .delete()
             .from(SysJobLog)
             .whereInIds(jobLogIds);
@@ -134,7 +134,7 @@ export class SysJobLogRepository {
             insertObject.exceptionInfo = jobLog.exceptionInfo;
         }
 
-        const queryBuilder = this.jobLogRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.jobLogRepository)
             .insert()
             .into(SysJobLog)
             .values(insertObject);
@@ -146,7 +146,7 @@ export class SysJobLogRepository {
     }
 
     async cleanJobLog(): Promise<void> {
-        this.jobLogRepository.clear()
+        this.jobLogRepository.clear()           
 
         this.sqlLoggerUtils.log(null, 'cleanJobLog');
 

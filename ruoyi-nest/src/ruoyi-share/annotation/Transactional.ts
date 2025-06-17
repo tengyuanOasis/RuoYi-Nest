@@ -7,7 +7,7 @@ export function Transactional() {
     const originalMethod = descriptor.value;
 
     descriptor.value = async function (...args: any[]) {
-      const contextHolderUtils: ContextHolderUtils = this.contextHolderUtils; // 获取上下文工具
+      const contextHolderUtils: ContextHolderUtils = ContextHolderUtils.getInstance(); // 获取上下文工具
 
       // 检查是否已存在事务
       const existingQueryRunner = contextHolderUtils?.getContext('transactionManager')?.queryRunner;
@@ -16,7 +16,8 @@ export function Transactional() {
           return await originalMethod.apply(this, args);
       }
 
-      const queryRunner: QueryRunner = this.dataSource.createQueryRunner();
+      const dataSource: DataSource = contextHolderUtils?.getContext('dataSource');
+      const queryRunner: QueryRunner = dataSource.createQueryRunner();
       await queryRunner.connect();
       await queryRunner.startTransaction();
 

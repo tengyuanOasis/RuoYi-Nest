@@ -7,7 +7,7 @@ import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
 import { plainToClass, plainToInstance } from 'class-transformer';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 
 @Injectable()
 export class GenTableRepository {
@@ -19,13 +19,13 @@ export class GenTableRepository {
         private readonly sqlLoggerUtils: SqlLoggerUtils,
         private readonly contextHolderUtils: ContextHolderUtils,
         private readonly dataSource: DataSource,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) { }
 
 
 
     selectGenTableVo() {
-        return this.tableRepository
-            .createQueryBuilder('t')
+        return this.queryBuilderUtils.createQueryBuilder(this.tableRepository,'t')
             .select([
                 't.tableId',
                 't.tableName',
@@ -152,7 +152,7 @@ export class GenTableRepository {
     }
 
     async selectGenTableByName(tableName: string): Promise<GenTable> {
-        const queryBuilder = this.tableRepository.createQueryBuilder('t')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.tableRepository,'t')
             .leftJoinAndMapMany('t.columns', 'gen_table_column', 'column', 't.tableId = column.tableId')
             .where('t.tableName = :tableName', { tableName })
             .orderBy('column.sort', 'ASC');
@@ -163,7 +163,7 @@ export class GenTableRepository {
     }
 
     async selectGenTableById(tableId: number): Promise<GenTable> {
-        const queryBuilder = this.tableRepository.createQueryBuilder('t')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.tableRepository,'t')
             .select([
                 't.tableId',
                 't.tableName',
@@ -214,9 +214,8 @@ export class GenTableRepository {
         });
     }
     async deleteGenTableById(tableId: number): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.tableRepository.manager;
 
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.tableRepository)
             .delete()
             .from(GenTable)
             .where('tableId = :tableId', { tableId });
@@ -228,8 +227,7 @@ export class GenTableRepository {
     }
 
     async deleteGenTableByIds(tableIds: number[]): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.tableRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.tableRepository)
             .delete()
             .from(GenTable)
             .whereInIds(tableIds);
@@ -305,12 +303,20 @@ export class GenTableRepository {
             updateData.remark = table.remark;
         }
 
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.tableRepository.manager;
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.tableRepository)
+            .update(GenTable)
+            .set(updateData)
+            .where('tableId = :tableId', { tableId: table.tableId });
 
-        const result = await entityManager.update(GenTable, table.tableId, updateData);
+        this.sqlLoggerUtils.log(queryBuilder, 'updateGenTable');
+
+        const result = await queryBuilder.execute();
         return result.affected;
     }
 
+    /**
+     * 导入表结构
+     */
     async insertGenTable(table: GenTable): Promise<number> {
         const insertObject: any = {
             createTime: new Date()
@@ -359,9 +365,7 @@ export class GenTableRepository {
             insertObject.createBy = table.createBy;
         }
 
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.tableRepository.manager;
-
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.tableRepository)
             .insert()
             .into(GenTable, Object.keys(insertObject))
             .values(insertObject);
@@ -374,7 +378,7 @@ export class GenTableRepository {
         return result.raw.insertId;
     }
     async selectGenTableAll(): Promise<GenTable[]> {
-        const queryBuilder = this.tableRepository.createQueryBuilder('t')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.tableRepository,'t')
             .select('t.tableId, t.tableName, t.tableComment, t.subTableName, t.subTableFkName, t.className, t.tplCategory, t.tplWebType, t.packageName, t.moduleName, t.businessName, t.functionName, t.functionAuthor, t.options, t.remark, c.columnId, c.columnName, c.columnComment, c.columnType, c.tsType, c.tsField, c.isPk, c.isIncrement, c.isRequired, c.isInsert, c.isEdit, c.isList, c.isQuery, c.queryType, c.htmlType, c.dictType, c.sort')
             .leftJoinAndMapMany('t.columns', 'gen_table_column', 'c', 't.tableId = c.tableId')
             .orderBy('c.sort', 'ASC');

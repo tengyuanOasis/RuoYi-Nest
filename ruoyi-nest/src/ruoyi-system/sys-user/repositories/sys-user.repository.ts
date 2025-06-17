@@ -9,7 +9,7 @@ import { LoginUser } from '~/ruoyi-share/model/login-user';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { SecurityUtils } from '~/ruoyi-share/utils/security.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysUserRepository {
 
@@ -20,14 +20,14 @@ export class SysUserRepository {
         private readonly dataScopeUtils: DataScopeUtils,
         private readonly sqlLoggerUtils: SqlLoggerUtils,    
         private readonly securityUtils: SecurityUtils,
-        private readonly contextHolderUtils: ContextHolderUtils
+        private readonly contextHolderUtils: ContextHolderUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
 
 
     selectUserVo() {
-        return this.userRepository
-            .createQueryBuilder('u')
+        return this.queryBuilderUtils.createQueryBuilder(this.userRepository,'u')
             .leftJoinAndMapOne('u.dept', 'sys_dept', 'd', 'u.dept_id = d.dept_id')
             .leftJoin('sys_user_role', 'ur', 'u.user_id = ur.user_id')
             .leftJoinAndMapMany('u.roles', 'sys_role', 'r', 'r.role_id = ur.role_id')
@@ -73,7 +73,7 @@ export class SysUserRepository {
      * 根据条件分页查询用户列表
      */
     async selectUserList(query: SysUser): Promise<[SysUser[],number]> {
-        const queryBuilder = this.userRepository.createQueryBuilder('u')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository,'u')
             .leftJoinAndMapOne('u.dept', 'sys_dept', 'd', 'u.dept_id = d.dept_id')
             .select([
                 'u.userId',
@@ -162,7 +162,7 @@ export class SysUserRepository {
      * 查询已分配用户角色列表
      */
     async selectAllocatedList(query: SysUser): Promise<[SysUser[], number]> {
-        const queryBuilder = this.userRepository.createQueryBuilder('u')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository,'u')
             .distinct(true)
             .select([
                 'u.userId',
@@ -200,7 +200,7 @@ export class SysUserRepository {
      * 查询未分配用户角色列表
      */
     async selectUnallocatedList(query: SysUser): Promise<[SysUser[], number]> {
-        const queryBuilder = this.userRepository.createQueryBuilder('u')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository,'u')
             .distinct(true)
             .select([
                 'u.userId',
@@ -265,9 +265,6 @@ export class SysUserRepository {
      * 新增用户信息
      */
     async insertUser(user: SysUser): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.userRepository.manager;
-        
-
 
         const insertObject: any = {
             createTime: new Date()
@@ -307,10 +304,8 @@ export class SysUserRepository {
             insertObject.remark = user.remark;
         }
         
-        const queryBuilder = entityManager
-        .createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository)
             .insert().into(SysUser,Object.keys(insertObject)).values(insertObject);
-
 
         this.sqlLoggerUtils.log(queryBuilder, 'insertUser');
 
@@ -341,7 +336,7 @@ export class SysUserRepository {
         if (user.remark != null && user.remark != '') insertObj.remark = user.remark;
         insertObj.createTime = new Date();
 
-        const queryBuilder = this.userRepository.createQueryBuilder('u')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository)
             .insert()
             .into(SysUser)
             .values(insertObj);
@@ -389,10 +384,10 @@ export class SysUserRepository {
      * @return 结果
      */
     async updateUserAvatar(user: SysUser): Promise<number> {
-        const queryBuilder = this.userRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository)
             .update(SysUser)
             .set({ avatar: user.avatar })
-            .where('user_name = :userName', { userName: user.userName });
+            .where('userName = :userName', { userName: user.userName });
 
         this.sqlLoggerUtils.log(queryBuilder, 'updateUserAvatar');
 
@@ -404,7 +399,7 @@ export class SysUserRepository {
      * 重置用户密码
      */
     async resetUserPwd(user: SysUser): Promise<number> {
-        const queryBuilder = this.userRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository)
             .update(SysUser)
             .set({ password: user.password })
             .where('userName = :userName', { userName: user.userName });
@@ -415,20 +410,25 @@ export class SysUserRepository {
         return result.affected;
     }
 
-    // /**
-    //  * 通过用户ID删除用户
-    //  */
-    // async deleteUserById(userId: number): Promise<boolean> {
-    //     const result = await this.update(userId, { delFlag: '2' });
-    //     return result.affected > 0;
-    // }
+    /**
+     * 通过用户ID删除用户
+     */
+    async deleteUserById(userId: number): Promise<boolean> {
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository)
+            .update(SysUser)
+            .set({ delFlag: '2' })
+            .where('userId = :userId', { userId });
+
+        this.sqlLoggerUtils.log(queryBuilder, 'deleteUserById');
+        const result = await queryBuilder.execute();
+        return result.affected > 0;
+    }
 
     /**
      * 批量删除用户信息
      */
     async deleteUserByIds(userIds: number[]): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.userRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository)
             .update(SysUser)
             .set({ delFlag: '2' })
             .whereInIds(userIds);
@@ -443,10 +443,10 @@ export class SysUserRepository {
      * 校验用户名称是否唯一
      */
     async checkUserNameUnique(userName: string): Promise<SysUser> {
-        const queryBuilder = this.userRepository.createQueryBuilder('user')
-            .select(['user.userId', 'user.userName'])
-            .where('user.userName = :userName', { userName })
-            .andWhere('user.delFlag = :delFlag', { delFlag: '0' })
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository,'u')
+            .select(['u.userId', 'u.userName'])
+            .where('u.userName = :userName', { userName })
+            .andWhere('u.delFlag = :delFlag', { delFlag: '0' })
             .limit(1);
 
         this.sqlLoggerUtils.log(queryBuilder, 'checkUserNameUnique');
@@ -457,10 +457,10 @@ export class SysUserRepository {
      * 校验手机号码是否唯一
      */
     async checkPhoneUnique(phonenumber: string): Promise<SysUser> {
-        const queryBuilder = this.userRepository.createQueryBuilder('user')
-            .select(['user.userId', 'user.phonenumber'])
-            .where('user.phonenumber = :phonenumber', { phonenumber })
-            .andWhere('user.delFlag = :delFlag', { delFlag: '0' })
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository,'u')
+            .select(['u.userId', 'u.phonenumber'])
+            .where('u.phonenumber = :phonenumber', { phonenumber })
+            .andWhere('u.delFlag = :delFlag', { delFlag: '0' })
             .limit(1);
 
         this.sqlLoggerUtils.log(queryBuilder, 'checkPhoneUnique');
@@ -472,10 +472,10 @@ export class SysUserRepository {
      * 校验email是否唯一
      */
     async checkEmailUnique(email: string): Promise<SysUser> {
-        const queryBuilder = this.userRepository.createQueryBuilder('user')
-            .select(['user.userId', 'user.email'])
-            .where('user.email = :email', { email })
-            .andWhere('user.delFlag = :delFlag', { delFlag: '0' })
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userRepository,'u')
+            .select(['u.userId', 'u.email'])
+            .where('u.email = :email', { email })
+            .andWhere('u.delFlag = :delFlag', { delFlag: '0' })
             .limit(1);
 
         this.sqlLoggerUtils.log(queryBuilder, 'checkEmailUnique');

@@ -4,14 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SysUserPost } from '../entities/sys-user-post.entity';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysUserPostRepository {
     constructor(
         @InjectRepository(SysUserPost)
         private readonly userPostRepository: Repository<SysUserPost>,
         private readonly sqlLoggerUtils: SqlLoggerUtils,
-        private readonly contextHolderUtils: ContextHolderUtils
+        private readonly contextHolderUtils: ContextHolderUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
     /**
@@ -21,7 +22,7 @@ export class SysUserPostRepository {
      * @return 结果
      */
     async deleteUserPostByUserId(userId: number): Promise<number> {
-        const queryBuilder = this.userPostRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userPostRepository)
             .delete()
             .from(SysUserPost)
             .where('userId = :userId', { userId });
@@ -38,7 +39,7 @@ export class SysUserPostRepository {
      * @return 结果
      */
     async countUserPostById(postId: number): Promise<number> {
-        const queryBuilder = this.userPostRepository.createQueryBuilder('up')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userPostRepository,'up')
             .where('up.postId = :postId', { postId });
 
         this.sqlLoggerUtils.log(queryBuilder, 'countUserPostById');
@@ -52,8 +53,7 @@ export class SysUserPostRepository {
      * @return 结果
      */
     async deleteUserPost(userIds: number[]): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.userPostRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userPostRepository)
             .delete()
             .from(SysUserPost)
             .where('userId IN (:...userIds)', { userIds });
@@ -70,8 +70,7 @@ export class SysUserPostRepository {
      * @return 结果
      */
     async batchUserPost(userPostList: SysUserPost[]): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.userPostRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.userPostRepository)
             .insert()
             .into(SysUserPost)
             .values(userPostList);

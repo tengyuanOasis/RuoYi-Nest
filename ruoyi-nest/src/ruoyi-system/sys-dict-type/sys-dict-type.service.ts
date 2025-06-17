@@ -9,6 +9,7 @@ import { DataSource, Transaction, EntityManager } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { StringUtils } from '~/ruoyi-share/utils/string.utils';
 import { UserConstants } from '~/ruoyi-share/constant/UserConstants';
+import { Transactional } from '~/ruoyi-share/annotation/Transactional';
 
 @Injectable()
 export class SysDictTypeService {
@@ -97,29 +98,18 @@ export class SysDictTypeService {
     return row;
   }
 
+  @Transactional()
   async updateDictType(dict: SysDictType): Promise<number> {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      const oldDict = await this.dictTypeRepository.selectDictTypeById(dict.dictId);
-      await this.dictDataRepository.updateDictDataType(oldDict.dictType, dict.dictType);
-      const row = await this.dictTypeRepository.updateDictType(dict);
+    const oldDict = await this.dictTypeRepository.selectDictTypeById(dict.dictId);
+    await this.dictDataRepository.updateDictDataType(oldDict.dictType, dict.dictType);
+    const row = await this.dictTypeRepository.updateDictType(dict);
 
-      if (row > 0) {
-        const dictDatas = await this.dictDataRepository.selectDictDataByType(dict.dictType);
-        this.dictUtils.setDictCache(dict.dictType, dictDatas);
-      }
-
-      await queryRunner.commitTransaction();
-      return row;
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
+    if (row > 0) {
+      const dictDatas = await this.dictDataRepository.selectDictDataByType(dict.dictType);
+      this.dictUtils.setDictCache(dict.dictType, dictDatas);
     }
 
+    return row;
   }
 
   async checkDictTypeUnique(dict: SysDictType): Promise<boolean> {

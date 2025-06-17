@@ -4,19 +4,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SysPost } from '../entities/sys-post.entity';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysPostRepository {
   constructor(
     @InjectRepository(SysPost)
     private readonly postRepository: Repository<SysPost>,
     private readonly queryUtils: QueryUtils,
-    private readonly sqlLoggerUtils: SqlLoggerUtils
+    private readonly sqlLoggerUtils: SqlLoggerUtils,
+    private readonly queryBuilderUtils: QueryBuilderUtils
   ) {}
 
 
   private selectPostVo(): SelectQueryBuilder<SysPost> {
-    return this.postRepository.createQueryBuilder('p')
+    return this.queryBuilderUtils.createQueryBuilder(this.postRepository,'p')
       .select([
         'p.postId',
         'p.postCode',
@@ -61,8 +62,7 @@ export class SysPostRepository {
   }
 
   async selectPostListByUserId(userId: number): Promise<number[]> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder('p')
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.postRepository,'p')
       .select('p.postId')
       .leftJoin('sys_user_post', 'up', 'up.post_id = p.post_id') 
       .leftJoin('sys_user', 'u', 'u.user_id = up.user_id')
@@ -75,8 +75,7 @@ export class SysPostRepository {
   }
 
   async selectPostsByUserName(userName: string): Promise<SysPost[]> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder('p')
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.postRepository,'p')
       .select([
         'p.postId',
         'p.postName', 
@@ -107,8 +106,11 @@ export class SysPostRepository {
   }
 
   async updatePost(post: SysPost): Promise<number> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder()
+    const updateData: any = {
+      updateTime: new Date()
+    };
+
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.postRepository)
       .update(SysPost)
       .set({
         postCode: post.postCode,
@@ -127,8 +129,11 @@ export class SysPostRepository {
   }
 
   async insertPost(post: SysPost): Promise<number> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder()
+    const insertData: any = {
+      createTime: new Date()
+    };
+
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.postRepository)
       .insert()
       .into(SysPost)
       .values({
@@ -148,8 +153,7 @@ export class SysPostRepository {
   }
 
   async deletePostById(postId: number): Promise<number> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder()
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.postRepository)
       .delete()
       .from(SysPost)
       .where('postId = :postId', { postId });
@@ -160,8 +164,7 @@ export class SysPostRepository {
   }
 
   async deletePostByIds(postIds: number[]): Promise<number> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder()
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.postRepository)
       .delete()
       .from(SysPost)
       .where('postId IN (:...postIds)', { postIds });

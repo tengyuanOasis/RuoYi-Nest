@@ -201,7 +201,7 @@ export class SysUserController extends BaseController {
     const loginUser = req.user;
     const ajax:any = new AjaxResult();
     if (userId) {
-      await this.userService.checkUserDataScope(userId,loginUser);
+      await this.userService.checkUserDataScope(userId);
       const sysUser = await this.userService.selectUserById(userId);
       ajax.data = sysUser;
       ajax.postIds = await this.postService.selectPostListByUserId(userId);
@@ -269,7 +269,7 @@ export class SysUserController extends BaseController {
     if (userIds.includes(loginUser.userId)) {
       return AjaxResult.error('当前用户不能删除');
     }
-    return AjaxResult.success(await this.userService.deleteUserByIds(userIds,loginUser));
+    return AjaxResult.success(await this.userService.deleteUserByIds(userIds));
   }
 
   @PreAuthorize("hasPermi('system:user:resetPwd')")
@@ -279,7 +279,7 @@ export class SysUserController extends BaseController {
   async resetPwd(@Body() user: SysUser, @Request() req) {
     const loginUser = req.user;
     await this.userService.checkUserAllowed(user);
-    await this.userService.checkUserDataScope(user.userId, loginUser);
+    await this.userService.checkUserDataScope(user.userId);
     user.password = await this.securityUtils.encryptPassword(user.password);
 
     user.updateBy = loginUser.username;
@@ -292,9 +292,8 @@ export class SysUserController extends BaseController {
   @Log({ title: '用户管理', businessType: BusinessType.UPDATE })
   async changeStatus(@Body() user: SysUser, @Request() req) {
     const loginUser = req.user;
-    const currentUser = loginUser.user;
-    await this.userService.checkUserAllowed(currentUser);
-    await this.userService.checkUserDataScope(currentUser.userId, loginUser);
+    await this.userService.checkUserAllowed(user);
+    await this.userService.checkUserDataScope(user.userId);
     user.updateBy = loginUser.getUsername();
     return AjaxResult.success(await this.userService.updateUserStatus(user));
   }
@@ -322,5 +321,6 @@ export class SysUserController extends BaseController {
     await this.userService.insertUserAuth(userId, roleIds);  
     return AjaxResult.success();
   }
+
 
 }

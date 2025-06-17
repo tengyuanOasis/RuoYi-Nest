@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository, In } from 'typeorm';
+import { Repository, In, EntityManager } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SysRole } from '../entities/sys-role.entity';
 import { QueryUtils } from '~/ruoyi-share/utils/query.utils';
@@ -7,6 +7,7 @@ import { LoginUser } from '~/ruoyi-share/model/login-user';
 import { DataScopeUtils } from '~/ruoyi-share/utils/data-scope.utils';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysRoleRepository {
   constructor(
@@ -15,12 +16,13 @@ export class SysRoleRepository {
     private readonly queryUtils: QueryUtils,
     private readonly dataScopeUtils: DataScopeUtils,
     private readonly sqlLoggerUtils: SqlLoggerUtils,
-    private readonly contextHolderUtils: ContextHolderUtils 
+    private readonly contextHolderUtils: ContextHolderUtils,
+    private readonly queryBuilderUtils: QueryBuilderUtils
   ) {}
 
   selectRoleVo() {
-    return this.roleRepository
-      .createQueryBuilder('r')
+      
+    return this.queryBuilderUtils.createQueryBuilder(this.roleRepository,'r')
       .leftJoin('sys_user_role', 'ur', 'ur.role_id = r.role_id')
       .leftJoin('sys_user', 'u', 'u.user_id = ur.user_id')
       .leftJoin('sys_dept', 'd', 'u.dept_id = d.dept_id')
@@ -80,7 +82,7 @@ export class SysRoleRepository {
   }
 
   async selectRolePermissionByUserId(userId: number): Promise<SysRole[]> {
-    const queryBuilder = this.roleRepository.createQueryBuilder('r')
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleRepository,'r')
       .leftJoinAndSelect('sys_user_role', 'ur', 'ur.role_id = r.role_id')
       .leftJoinAndSelect('sys_user', 'u', 'u.user_id = ur.user_id')
       .leftJoinAndSelect('sys_dept', 'd', 'u.dept_id = d.dept_id')
@@ -98,7 +100,7 @@ export class SysRoleRepository {
   }
 
   async selectRoleAll(): Promise<SysRole[]> {
-    const queryBuilder = this.roleRepository.createQueryBuilder('r')
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleRepository,'r')
       .leftJoinAndSelect('r.userRoles', 'ur')
       .leftJoinAndSelect('ur.user', 'u')
       .leftJoinAndSelect('u.dept', 'd')
@@ -109,7 +111,7 @@ export class SysRoleRepository {
   }
 
   async selectRoleListByUserId(userId: number): Promise<number[]> {
-    const queryBuilder = this.roleRepository.createQueryBuilder('r')
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleRepository,'r')
       .leftJoin('r.userRoles', 'ur')
       .leftJoin('ur.user', 'u')
       .where('u.userId = :userId', { userId })
@@ -161,9 +163,7 @@ export class SysRoleRepository {
   }
 
   async insertRole(role: SysRole): Promise<number> {
-    const entityManager =  this.contextHolderUtils.getContext('transactionManager') || this.roleRepository.manager;
-    
-    const queryBuilder = entityManager.createQueryBuilder(SysRole, 'r')
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleRepository)
       .insert()
       .into(SysRole)
       .values({
@@ -193,9 +193,7 @@ export class SysRoleRepository {
     if (role.remark != null) updateData.remark = role.remark;
     if (role.updateBy != null && role.updateBy != '') updateData.updateBy = role.updateBy;
 
-    const entityManager =  this.contextHolderUtils.getContext('transactionManager') || this.roleRepository.manager;
-  
-    const queryBuilder = entityManager.createQueryBuilder()
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleRepository)
       .update(SysRole)
       .set(updateData)
       .where('roleId = :roleId', { roleId: role.roleId })
@@ -207,7 +205,7 @@ export class SysRoleRepository {
   }
 
   async deleteRoleById(roleId: number): Promise<number> {
-    const queryBuilder = this.roleRepository.createQueryBuilder()
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleRepository)
       .update(SysRole)
       .set({ delFlag: '2' })
       .where('roleId = :roleId', { roleId })
@@ -219,7 +217,7 @@ export class SysRoleRepository {
   }
 
   async deleteRoleByIds(roleIds: number[]): Promise<number> {
-    const queryBuilder = this.roleRepository.createQueryBuilder()
+    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleRepository)
       .update(SysRole)
       .set({ delFlag: '2' })
       .where('roleId IN (:...roleIds)', { roleIds })

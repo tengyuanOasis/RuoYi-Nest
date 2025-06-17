@@ -9,7 +9,7 @@ import { LoginUser } from '~/ruoyi-share/model/login-user';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { SecurityUtils } from '~/ruoyi-share/utils/security.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class GenTableColumnRepository {
 
@@ -18,14 +18,14 @@ export class GenTableColumnRepository {
         private readonly columnRepository: Repository<GenTableColumn>,
         private readonly sqlLoggerUtils: SqlLoggerUtils,    
         private readonly contextHolderUtils: ContextHolderUtils,
-        private readonly queryUtils: QueryUtils 
+        private readonly queryUtils: QueryUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
 
 
     selectGenTableColumnVo() {
-        return this.columnRepository
-            .createQueryBuilder('c')
+        return this.queryBuilderUtils.createQueryBuilder(this.columnRepository,'c')
             .select([
                 'c.columnId',
                 'c.tableId',
@@ -150,9 +150,7 @@ export class GenTableColumnRepository {
             insertObject.createBy = column.createBy;
         }
 
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.columnRepository.manager;
-
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.columnRepository)
             .insert()
             .into(GenTableColumn,Object.keys(insertObject))
             .values(insertObject);
@@ -207,18 +205,25 @@ export class GenTableColumnRepository {
             updateData.updateBy = column.updateBy;
         }
 
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.columnRepository.manager;
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.columnRepository)
+            .update(GenTableColumn)
+            .set(updateData)
+            .where('columnId = :columnId', { columnId: column.columnId });
 
-        const result = await entityManager.update(GenTableColumn, column.columnId, updateData);
+        this.sqlLoggerUtils.log(queryBuilder, 'updateGenTableColumn');
+
+        const result = await queryBuilder.execute();
         return result.affected;
     }
 
+    /**
+     * 删除代码生成业务表字段
+     */
     async deleteGenTableColumnByIds(tableIds: number[]): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.columnRepository.manager;
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.columnRepository)
             .delete()
             .from(GenTableColumn)
-            .where('tableId IN (:tableIds)',{tableIds})
+            .where('tableId IN (:...tableIds)',{tableIds})
 
         this.sqlLoggerUtils.log(queryBuilder, 'deleteGenTableColumnByIds');
 
@@ -226,11 +231,14 @@ export class GenTableColumnRepository {
         return result.affected;
     }
 
+    /**
+     * 删除字段信息
+     */
     async deleteGenTableColumns(columns: GenTableColumn[]): Promise<number> {
-        const queryBuilder = this.columnRepository.createQueryBuilder('c')
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.columnRepository)
             .delete()
             .from(GenTableColumn)
-            .where('c.columnId IN (:columnIds)')
+            .where('columnId IN (:...columnIds)')
             .setParameter('columnIds', columns.map(column => column.columnId));
 
         this.sqlLoggerUtils.log(queryBuilder, 'deleteGenTableColumns');

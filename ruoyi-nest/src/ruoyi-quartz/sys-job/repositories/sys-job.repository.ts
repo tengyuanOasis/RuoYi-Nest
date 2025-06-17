@@ -9,7 +9,7 @@ import { LoginUser } from '~/ruoyi-share/model/login-user';
 import { SqlLoggerUtils } from '~/ruoyi-share/utils/sql-logger.utils';
 import { SecurityUtils } from '~/ruoyi-share/utils/security.utils';
 import { ContextHolderUtils } from '~/ruoyi-share/utils/context-holder.utils';
-
+import { QueryBuilderUtils } from '~/ruoyi-share/utils/query-builder.utils';
 @Injectable()
 export class SysJobRepository {
 
@@ -20,14 +20,14 @@ export class SysJobRepository {
         private readonly dataScopeUtils: DataScopeUtils,
         private readonly sqlLoggerUtils: SqlLoggerUtils,    
         private readonly securityUtils: SecurityUtils,
-        private readonly contextHolderUtils: ContextHolderUtils
+        private readonly contextHolderUtils: ContextHolderUtils,
+        private readonly queryBuilderUtils: QueryBuilderUtils
     ) {}
 
 
 
     selectJobVo() {
-        return this.jobRepository
-            .createQueryBuilder('job')
+        return this.queryBuilderUtils.createQueryBuilder(this.jobRepository,'job')
             .select([
                 'job.jobId',
                 'job.jobName',
@@ -87,9 +87,7 @@ export class SysJobRepository {
     }
 
     async deleteJobById(jobId: number): Promise<number> {
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.jobRepository.manager;
-
-        const queryBuilder = entityManager.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.jobRepository)
             .delete()
             .from(SysJob)
             .where('jobId = :jobId', { jobId });
@@ -101,7 +99,7 @@ export class SysJobRepository {
     }
 
     async deleteJobByIds(jobIds: number[]): Promise<number> {
-        const queryBuilder = this.jobRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.jobRepository)
             .delete()
             .from(SysJob)
             .whereInIds(jobIds);
@@ -144,9 +142,13 @@ export class SysJobRepository {
             updateData.updateBy = job.updateBy;
         }
 
-        const entityManager = this.contextHolderUtils.getContext('transactionManager') || this.jobRepository.manager;
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.jobRepository)
+            .update(SysJob)
+            .set(updateData)
+            .where('jobId = :jobId', { jobId: job.jobId });
 
-        const result = await entityManager.update(SysJob, job.jobId, updateData);
+        this.sqlLoggerUtils.log(queryBuilder, 'updateJob');
+        const result = await queryBuilder.execute();
         return result.affected;
     }
 
@@ -186,7 +188,7 @@ export class SysJobRepository {
             insertObject.createBy = job.createBy;
         }
 
-        const queryBuilder = this.jobRepository.createQueryBuilder()
+        const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.jobRepository)    
             .insert()
             .into(SysJob)
             .values(insertObject);
