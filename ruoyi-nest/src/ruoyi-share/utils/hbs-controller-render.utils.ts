@@ -52,7 +52,7 @@ export class ${context.ClassName}Controller extends BaseController {
      */
     @ApiOperation({ summary: '查询${context.functionName}列表' })
     @ApiResponse({ status: 200, description: '查询成功', type: [${context.ClassName}] })
-    @PreAuthorize('${context.permissionPrefix}:list')
+    @PreAuthorize('hasPermi("${context.permissionPrefix}:list")')
     @Get('list')
     @Log({ title: '查询${context.functionName}列表' })
     async list(@Query() query: ${context.ClassName}) {
@@ -66,7 +66,7 @@ export class ${context.ClassName}Controller extends BaseController {
      */
     @ApiOperation({ summary: '导出${context.functionName}列表' })
     @ApiResponse({ status: 200, description: '导出成功' })
-    @PreAuthorize('${context.permissionPrefix}:export')
+    @PreAuthorize('hasPermi("${context.permissionPrefix}:export")')
     @Post('export')
     @Log({ title: '导出${context.functionName}', businessType: BusinessType.EXPORT })
     async export(@Res() res, @Body() query: ${context.ClassName}) {
@@ -79,7 +79,7 @@ export class ${context.ClassName}Controller extends BaseController {
      */
     @ApiOperation({ summary: '获取${context.functionName}详细信息' })
     @ApiResponse({ status: 200, description: '获取成功', type: ${context.ClassName} })
-    @PreAuthorize('${context.permissionPrefix}:query')
+    @PreAuthorize('hasPermi("${context.permissionPrefix}:query")')
     @Get(':${context.pkColumn.tsField}')
     @Log({ title: '获取${context.functionName}详细信息' })
     async getInfo(@Param('${context.pkColumn.tsField}') ${context.pkColumn.tsField}: number) {
@@ -91,7 +91,7 @@ export class ${context.ClassName}Controller extends BaseController {
      */
     @ApiOperation({ summary: '新增${context.functionName}' })
     @ApiResponse({ status: 201, description: '新增成功' })
-    @PreAuthorize('${context.permissionPrefix}:add')
+    @PreAuthorize('hasPermi("${context.permissionPrefix}:add")')
     @Post()
     @Log({ title: '新增${context.functionName}', businessType: BusinessType.INSERT })
     async add(@Body() ${context.className}: ${context.ClassName}, @Req() req) {
@@ -108,7 +108,7 @@ export class ${context.ClassName}Controller extends BaseController {
      */
     @ApiOperation({ summary: '修改${context.functionName}' })
     @ApiResponse({ status: 200, description: '修改成功' })
-    @PreAuthorize('${context.permissionPrefix}:edit')
+    @PreAuthorize('hasPermi("${context.permissionPrefix}:edit")')
     @Put()
     @Log({ title: '修改${context.functionName}', businessType: BusinessType.UPDATE })
     async edit(@Body() ${context.className}: ${context.ClassName}, @Req() req) {
@@ -124,7 +124,7 @@ export class ${context.ClassName}Controller extends BaseController {
      */
     @ApiOperation({ summary: '删除${context.functionName}' })
     @ApiResponse({ status: 200, description: '删除成功' })
-    @PreAuthorize('${context.permissionPrefix}:remove')
+    @PreAuthorize('hasPermi("${context.permissionPrefix}:remove")')
     @Delete(':${context.pkColumn.tsField}s')
     @Log({ title: '删除${context.functionName}', businessType: BusinessType.DELETE })
     async remove(@Param('${context.pkColumn.tsField}s') ${context.pkColumn.tsField}s: string) {
