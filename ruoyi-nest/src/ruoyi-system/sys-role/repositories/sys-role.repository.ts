@@ -100,11 +100,7 @@ export class SysRoleRepository {
   }
 
   async selectRoleAll(): Promise<SysRole[]> {
-    const queryBuilder = this.queryBuilderUtils.createQueryBuilder(this.roleRepository,'r')
-      .leftJoinAndSelect('r.userRoles', 'ur')
-      .leftJoinAndSelect('ur.user', 'u')
-      .leftJoinAndSelect('u.dept', 'd')
-      .where('r.delFlag = :delFlag', { delFlag: '0' });
+    const queryBuilder = this.selectRoleVo();
 
     this.sqlLoggerUtils.log(queryBuilder, 'selectRoleAll');
     return queryBuilder.getMany();
