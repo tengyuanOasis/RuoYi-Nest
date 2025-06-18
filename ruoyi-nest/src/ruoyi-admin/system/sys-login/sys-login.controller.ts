@@ -50,7 +50,7 @@ export class SysLoginController {
   @ApiOperation({ summary: '登出方法' })
   async logout(@Request() req) {
 
-    this.jwtAuthService.logout(req);
+    await this.jwtAuthService.logout(req);
     const success = AjaxResult.success();
     return success;
   }
